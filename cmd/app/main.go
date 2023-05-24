@@ -2,9 +2,10 @@ package main
 
 import (
 	"database/sql"
+	"log"
 
 	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/database/sql_persistence"
+	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/database/persistence"
 )
 
 type User struct {
@@ -17,5 +18,8 @@ var DbConnection *sql.DB
 func main() {
 	config.LoadEnv()
 	configData := config.ProvideConfig()
-	DbConnection = sql_persistence.ConnectToDB(configData.Db)
+	_, err := persistence.NewSqlDatabaseConn("postgres", configData.Db)
+	if err != nil {
+		log.Println(err)
+	}
 }

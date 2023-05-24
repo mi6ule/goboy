@@ -3,18 +3,19 @@ package config
 import (
 	"log"
 	"os"
-	"strconv"
 
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 )
 
 type DatabaseConfig struct {
 	ConnectionString string
 	Host             string
-	Port             int32
+	Port             string
 	User             string
 	Pwd              string
 	Name             string
+	Options          string
 }
 
 type ServerConfig struct {
@@ -38,7 +39,6 @@ func GetEnv(key string) string {
 }
 
 func ProvideConfig() Config {
-	num, _ := strconv.ParseInt(os.Getenv("DB_PORT"), 10, 32)
 	return Config{
 		Server: ServerConfig{
 			Port: os.Getenv("PORT"),
@@ -46,10 +46,11 @@ func ProvideConfig() Config {
 		Db: DatabaseConfig{
 			ConnectionString: os.Getenv("DB_CONNECTION"),
 			Host:             os.Getenv("DB_HOST"),
-			Port:             int32(num),
+			Port:             os.Getenv("DB_PORT"),
 			User:             os.Getenv("DB_USER"),
 			Pwd:              os.Getenv("DB_PWD"),
 			Name:             os.Getenv("DB_NAME"),
+			Options:          os.Getenv("DB_OPTIONS"),
 		},
 	}
 }
