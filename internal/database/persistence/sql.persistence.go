@@ -89,9 +89,9 @@ func (db *Database) ExecuteQuery(query string) ([]map[string]interface{}, error)
 }
 
 // Example usage
-func ExampleUsage() {
+func ExampleMySql() {
 	// Create a new SQL database connection
-	db, err := NewSqlDatabaseConn("mysql", config.DatabaseConfig{ConnectionString: "user:password@tcp(localhost:3306)/database"})
+	db, err := NewSqlDatabaseConn("mysql", config.DatabaseConfig{ConnectionString: "mysql://user:password@localhost:3306/database"})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -99,6 +99,31 @@ func ExampleUsage() {
 
 	// Execute a query
 	query := "SELECT * FROM users"
+	result, err := db.ExecuteQuery(query)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Process the query result
+	for _, row := range result {
+		// Access row data using column names
+		fmt.Println("ID:", row["id"])
+		fmt.Println("Name:", row["name"])
+		// ...
+	}
+}
+
+// Example usage
+func ExamplePostgres() {
+	// Create a new SQL database connection
+	db, err := NewSqlDatabaseConn("postgres", config.DatabaseConfig{ConnectionString: "postgres://postgres:123@localhost:5432/golangdb?sslmode=disable"})
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	// Execute a query
+	query := "SELECT * FROM customer"
 	result, err := db.ExecuteQuery(query)
 	if err != nil {
 		log.Fatal(err)
