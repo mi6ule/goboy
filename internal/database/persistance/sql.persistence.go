@@ -1,4 +1,4 @@
-package persistance
+package sql_persistence
 
 import (
 	"database/sql"

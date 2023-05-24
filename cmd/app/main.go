@@ -4,7 +4,7 @@ import (
 	"database/sql"
 
 	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/database/persistance"
+	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/database/sql_persistence"
 )
 
 type User struct {
@@ -17,5 +17,5 @@ var DbConnection *sql.DB
 func main() {
 	config.LoadEnv()
 	configData := config.ProvideConfig()
-	DbConnection = persistance.ConnectToDB(configData.Db)
+	DbConnection = sql_persistence.ConnectToDB(configData.Db)
 }
