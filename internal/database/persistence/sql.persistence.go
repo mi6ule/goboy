@@ -12,30 +12,30 @@ type Database struct {
 	db *sql.DB
 }
 
-func NewSqlDatabaseConn(driver string, connectionConfig config.DatabaseConfig) (*Database, error) {
+func NewSqlDatabaseConn(driver string, connectionConfig config.DatabaseConfig) *Database {
 	var connectionString string
 	if len(connectionConfig.ConnectionString) > 0 {
 		connectionString = connectionConfig.ConnectionString
 	} else if len(connectionConfig.Host) > 0 {
 		connectionString = fmt.Sprintf("%s://%s:%s@%s:%s/%s?%s", driver, connectionConfig.User, connectionConfig.Pwd, connectionConfig.Host, connectionConfig.Port, connectionConfig.Name, connectionConfig.Options)
 	} else {
-		return nil, nil
+		log.Fatalln("Please pass the required variables to connect to mongodb")
 	}
 	db, err := sql.Open(driver, connectionString)
 	if err != nil {
-		return nil, err
+		log.Fatalln(err)
 	}
 
 	// Test the connection
 	err = db.Ping()
 	if err != nil {
-		return nil, err
+		log.Fatalln(err)
 	}
 	log.Printf("Connected to %s db", driver)
 
 	return &Database{
 		db: db,
-	}, nil
+	}
 }
 
 func (db *Database) Close() {
@@ -91,10 +91,7 @@ func (db *Database) ExecuteQuery(query string) ([]map[string]interface{}, error)
 // Example usage
 func ExampleMySql() {
 	// Create a new SQL database connection
-	db, err := NewSqlDatabaseConn("mysql", config.DatabaseConfig{ConnectionString: "mysql://user:password@localhost:3306/database"})
-	if err != nil {
-		log.Fatal(err)
-	}
+	db := NewSqlDatabaseConn("mysql", config.DatabaseConfig{ConnectionString: "mysql://user:password@localhost:3306/database"})
 	defer db.Close()
 
 	// Execute a query
@@ -116,10 +113,7 @@ func ExampleMySql() {
 // Example usage
 func ExamplePostgres() {
 	// Create a new SQL database connection
-	db, err := NewSqlDatabaseConn("postgres", config.DatabaseConfig{ConnectionString: "postgres://postgres:123@localhost:5432/golangdb?sslmode=disable"})
-	if err != nil {
-		log.Fatal(err)
-	}
+	db := NewSqlDatabaseConn("postgres", config.DatabaseConfig{ConnectionString: "postgres://postgres:123@localhost:5432/golangdb?sslmode=disable"})
 	defer db.Close()
 
 	// Execute a query

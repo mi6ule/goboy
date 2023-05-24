@@ -23,8 +23,9 @@ type ServerConfig struct {
 }
 
 type Config struct {
-	Server ServerConfig
-	Db     DatabaseConfig
+	Server     ServerConfig
+	PostgresDb DatabaseConfig
+	MongoDb    DatabaseConfig
 }
 
 func LoadEnv() {
@@ -43,14 +44,23 @@ func ProvideConfig() Config {
 		Server: ServerConfig{
 			Port: os.Getenv("PORT"),
 		},
-		Db: DatabaseConfig{
-			ConnectionString: os.Getenv("DB_CONNECTION"),
-			Host:             os.Getenv("DB_HOST"),
-			Port:             os.Getenv("DB_PORT"),
-			User:             os.Getenv("DB_USER"),
-			Pwd:              os.Getenv("DB_PWD"),
-			Name:             os.Getenv("DB_NAME"),
-			Options:          os.Getenv("DB_OPTIONS"),
+		PostgresDb: DatabaseConfig{
+			ConnectionString: os.Getenv("PG_DB_CONNECTION"),
+			Host:             os.Getenv("PG_DB_HOST"),
+			Port:             os.Getenv("PG_DB_PORT"),
+			User:             os.Getenv("PG_DB_USER"),
+			Pwd:              os.Getenv("PG_DB_PWD"),
+			Name:             os.Getenv("PG_DB_NAME"),
+			Options:          os.Getenv("PG_DB_OPTIONS"),
+		},
+		MongoDb: DatabaseConfig{
+			ConnectionString: os.Getenv("MONGO_DB_CONNECTION"),
+			Host:             os.Getenv("MONGO_DB_HOST"),
+			Port:             os.Getenv("MONGO_DB_PORT"),
+			User:             os.Getenv("MONGO_DB_USER"),
+			Pwd:              os.Getenv("MONGO_DB_PWD"),
+			Name:             os.Getenv("MONGO_DB_NAME"),
+			Options:          os.Getenv("MONGO_DB_OPTIONS"),
 		},
 	}
 }

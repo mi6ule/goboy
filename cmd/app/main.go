@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"log"
 
 	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/database/persistence"
@@ -18,8 +17,6 @@ var DbConnection *sql.DB
 func main() {
 	config.LoadEnv()
 	configData := config.ProvideConfig()
-	_, err := persistence.NewSqlDatabaseConn("postgres", configData.Db)
-	if err != nil {
-		log.Println(err)
-	}
+	persistence.NewSqlDatabaseConn("postgres", configData.PostgresDb)
+	persistence.NoSQLConnection("mongodb", configData.MongoDb)
 }
