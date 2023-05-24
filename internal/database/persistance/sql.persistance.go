@@ -9,7 +9,6 @@ import (
 )
 
 func ConnectToDB(input config.DatabaseConfig) *sql.DB {
-	fmt.Println(input)
 	var postgresqlDbInfo string
 	if len(input.ConnectionString) > 0 {
 		postgresqlDbInfo = fmt.Sprintf(input.ConnectionString)
