@@ -6,36 +6,31 @@ import (
 	"log"
 
 	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
+	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/util"
 )
 
 type Database struct {
 	db *sql.DB
 }
 
-func NewSqlDatabaseConn(driver string, connectionConfig config.DatabaseConfig) *Database {
-	var connectionString string
-	if len(connectionConfig.ConnectionString) > 0 {
-		connectionString = connectionConfig.ConnectionString
-	} else if len(connectionConfig.Host) > 0 {
-		connectionString = fmt.Sprintf("%s://%s:%s@%s:%s/%s?%s", driver, connectionConfig.User, connectionConfig.Pwd, connectionConfig.Host, connectionConfig.Port, connectionConfig.Name, connectionConfig.Options)
-	} else {
-		log.Fatalln("Please pass the required variables to connect to mongodb")
+func NewSqlDatabaseConn(driver string, connectionConfig config.DatabaseConfig) (*Database, error) {
+	connectionString, err := util.CreateConnectionString(driver, connectionConfig)
+	if err != nil {
+		return nil, err
 	}
 	db, err := sql.Open(driver, connectionString)
 	if err != nil {
-		log.Fatalln(err)
+		return nil, err
 	}
-
-	// Test the connection
 	err = db.Ping()
 	if err != nil {
-		log.Fatalln(err)
+		return nil, err
 	}
 	log.Printf("Connected to %s db", driver)
 
 	return &Database{
 		db: db,
-	}
+	}, nil
 }
 
 func (db *Database) Close() {
@@ -91,7 +86,7 @@ func (db *Database) ExecuteQuery(query string) ([]map[string]interface{}, error)
 // Example usage
 func ExampleMySql() {
 	// Create a new SQL database connection
-	db := NewSqlDatabaseConn("mysql", config.DatabaseConfig{ConnectionString: "mysql://user:password@localhost:3306/database"})
+	db, _ := NewSqlDatabaseConn("mysql", config.DatabaseConfig{ConnectionString: "mysql://user:password@localhost:3306/database"})
 	defer db.Close()
 
 	// Execute a query
@@ -113,7 +108,7 @@ func ExampleMySql() {
 // Example usage
 func ExamplePostgres() {
 	// Create a new SQL database connection
-	db := NewSqlDatabaseConn("postgres", config.DatabaseConfig{ConnectionString: "postgres://postgres:123@localhost:5432/golangdb?sslmode=disable"})
+	db, _ := NewSqlDatabaseConn("postgres", config.DatabaseConfig{ConnectionString: "postgres://postgres:123@localhost:5432/golangdb?sslmode=disable"})
 	defer db.Close()
 
 	// Execute a query
