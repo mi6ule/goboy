@@ -2,7 +2,6 @@ package migration
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -23,7 +22,7 @@ func RunSqlMigrations(db *persistence.Database) error {
 	// Iterate over the migration files
 	for _, file := range migrationFiles {
 		// Read the migration file
-		migrationContent, err := ioutil.ReadFile(file)
+		migrationContent, err := os.ReadFile(file)
 		if err != nil {
 			return fmt.Errorf("failed to read migration file: %w", err)
 		}
