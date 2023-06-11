@@ -11,8 +11,8 @@ import (
 )
 
 func RunSqlMigrations(db *persistence.Database) error {
-	wd, err := os.Getwd()
-	migrationsDir := wd + "/internal/infrastructure/database/migration/command/"
+	wd, _ := os.Getwd()
+	migrationsDir := filepath.Join(wd, "internal", "infrastructure", "database", "migration", "command")
 
 	// Get the list of migration files
 	migrationFiles, err := GetSqlMigrationFiles(migrationsDir)
