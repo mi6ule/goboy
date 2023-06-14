@@ -12,6 +12,8 @@ require (
 	golang.org/x/crypto v0.7.0
 )
 
+require github.com/go-redis/redis v6.15.9+incompatible // indirect
+
 require (
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
