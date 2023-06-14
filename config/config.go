@@ -13,7 +13,7 @@ type DatabaseConfig struct {
 	Host             string
 	Port             string
 	User             string
-	Pwd              string
+	Pwd              string 
 	Name             string
 	Options          string
 }
@@ -26,6 +26,7 @@ type Config struct {
 	Server     ServerConfig
 	PostgresDb DatabaseConfig
 	MongoDb    DatabaseConfig
+	Redis      DatabaseConfig
 }
 
 func LoadEnv() {
@@ -61,6 +62,11 @@ func ProvideConfig() Config {
 			Pwd:              os.Getenv("MONGO_DB_PWD"),
 			Name:             os.Getenv("MONGO_DB_NAME"),
 			Options:          os.Getenv("MONGO_DB_OPTIONS"),
+		},
+		Redis: DatabaseConfig{
+			Host: os.Getenv("REDIS_HOST"),
+			Pwd:  os.Getenv("REDIS_PWD"),
+			Name: os.Getenv("REDIS_NAME"),
 		},
 	}
 }

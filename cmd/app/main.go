@@ -2,11 +2,13 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/migration/handler"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/persistence"
+	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/repository"
 )
 
 var DbConnection *sql.DB
@@ -22,4 +24,15 @@ func main() {
 
 	log.Println("Migrations completed successfully")
 	persistence.NoSQLConnection("mongodb", configData.MongoDb)
+
+	redisClient, err := persistence.NewRedisClient(configData.Redis)
+	if err != nil {
+		log.Fatalf("failed to connect to redis: %v", err)
+	}
+
+	// Redis repository initialization
+	redisRepo := repository.NewRedisRepository(redisClient)
+
+	redisRepo.Set("hello", "hello world!")
+	fmt.Println(redisRepo.Get("hello"))
 }
