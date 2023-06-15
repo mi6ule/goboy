@@ -8,7 +8,7 @@ import (
 	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/migration/handler"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/persistence"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/repository"
+	repository "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/repository/cache"
 )
 
 var DbConnection *sql.DB
