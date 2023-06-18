@@ -2,10 +2,10 @@ package persistence
 
 import (
 	"context"
-	"log"
 	"strings"
 	"time"
 
+	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -23,14 +23,14 @@ func (db MongoDatabaseConnection) Connect() *MongoDatabase {
 	connectionString := db.connectionString
 	lastSlashIndex := strings.LastIndex(connectionString, "/")
 	if lastSlashIndex == -1 || lastSlashIndex == len(connectionString)-1 {
-		log.Fatalln("invalid connection string")
+		logging.Logger.Fatal().Msg("invalid connection string")
 	}
 
 	dbName := connectionString[lastSlashIndex+1:]
 
 	client, err := mongo.NewClient(options.Client().ApplyURI(connectionString))
 	if err != nil {
-		log.Fatalln("Error while trying to connect to mongodb:", err)
+		logging.Logger.Fatal().Err(err).Msg("Error while trying to connect to mongodb")
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -38,12 +38,12 @@ func (db MongoDatabaseConnection) Connect() *MongoDatabase {
 
 	err = client.Connect(ctx)
 	if err != nil {
-		log.Fatalln("Error while trying to connect to mongodb:", err)
+		logging.Logger.Fatal().Err(err).Msg("Error while trying to connect to mongodb")
 	}
 
 	database := client.Database(dbName)
 
-	log.Println("connected to mongodb")
+	logging.Logger.Info().Msg("connected to mongodb")
 
 	return &MongoDatabase{
 		Client:   client,
@@ -57,6 +57,6 @@ func (db MongoDatabase) Disconnect() {
 
 	err := db.Client.Disconnect(ctx)
 	if err != nil {
-		log.Printf("Error disconnecting from MongoDB: %v", err)
+		logging.Logger.Info().Msgf("Error disconnecting from MongoDB: %v", err)
 	}
 }

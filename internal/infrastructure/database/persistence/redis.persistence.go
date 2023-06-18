@@ -1,7 +1,6 @@
 package persistence
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/go-redis/redis"
@@ -13,7 +12,6 @@ type RedisClient struct {
 }
 
 func NewRedisClient(connectionConfig config.DatabaseConfig) (*RedisClient, error) {
-	fmt.Println(connectionConfig)
 	dbName, err := strconv.Atoi(connectionConfig.Name)
 	if err != nil {
 		return nil, err
