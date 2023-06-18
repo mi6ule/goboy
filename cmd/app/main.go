@@ -2,8 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
-	"log"
 
 	// "github.com/google/uuid"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
@@ -27,20 +25,20 @@ func main() {
 	// TestUserRepo(db)
 
 	if err := migration.RunMigration(db); err != nil {
-		log.Fatalf("failed to run migrations: %v", err)
+		logging.Logger.Fatal().Msgf("failed to run migrations: %v", err)
 	}
 
-	log.Println("Migrations completed successfully")
+	logging.Logger.Info().Msg("Migrations completed successfully")
 	mongoClient, err := persistence.NoSQLConnection("mongodb", configData.MongoDb)
 	if err != nil {
-		log.Fatalf("failed to connect to mongoDb: %v", err)
+		logging.Logger.Fatal().Msgf("failed to connect to mongoDb: %v", err)
 	}
 
 	TestClientRepo(mongoClient)
 
 	redisClient, err := persistence.NewRedisClient(configData.Redis)
 	if err != nil {
-		log.Fatalf("failed to connect to redis: %v", err)
+		logging.Logger.Fatal().Msgf("failed to connect to redis: %v", err)
 	}
 
 	// Redis repository initialization
@@ -70,14 +68,14 @@ func TestClientRepo(db *persistence.MongoDatabase) {
 	}
 	err := clientRepository.Create(client)
 	if err != nil {
-		log.Fatal(err)
+		logging.Logger.Fatal().Err(err).Msg("")
 	}
 
 	findClient, err := clientRepository.GetByID(123456789)
 	if err != nil {
-		log.Fatal(err)
+		logging.Logger.Fatal().Err(err).Msg("")
 	}
-	fmt.Println(*&findClient.Age)
+	logging.Logger.Info().Msgf("Found clien's age is: %v", findClient.Age)
 }
 
 func TestUserRepo(db *persistence.Database) {
@@ -94,25 +92,25 @@ func TestUserRepo(db *persistence.Database) {
 	// }
 	// err := userRepo.Create(user)
 	// if err != nil {
-	// 	log.Fatal(err)
+	// 	logging.Logger.Fatal().Err(err).Msg("")
 	// }
 
 	// // Retrieve a user by ID
 	// retrievedUser, err := userRepo.GetByID(user.ID)
 	// if err != nil {
-	// 	log.Fatal(err)
+	// 	logging.Logger.Fatal().Err(err).Msg("")
 	// }
 
 	// // Update the user
 	// user.Username = "jdoe"
 	// err = userRepo.Update(user)
 	// if err != nil {
-	// 	log.Fatal(err)
+	// 	logging.Logger.Fatal().Err(err).Msg("")
 	// }
 
 	// // Delete the user
 	// err = userRepo.Delete(user.ID)
 	// if err != nil {
-	// 	log.Fatal(err)
+	// 	logging.Logger.Fatal().Err(err).Msg("")
 	// }
 }
