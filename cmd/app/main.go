@@ -20,7 +20,7 @@ func main() {
 	configData := config.ProvideConfig()
 	db, _ := persistence.NewSqlDatabaseConn("postgres", configData.PostgresDb)
 	defer db.Close()
-	TestUserRepo(db)
+	// TestUserRepo(db)
 
 	if err := migration.RunMigration(db); err != nil {
 		log.Fatalf("failed to run migrations: %v", err)

@@ -12,9 +12,9 @@ import (
 
 type UserRepository interface {
 	Create(user *command_model.User) error
-	GetById(id int64) (*command_model.User, error)
+	GetById(id uuid.UUID) (*command_model.User, error)
 	Update(user *command_model.User) error
-	Delete(id int64) error
+	Delete(id uuid.UUID) error
 	// ... other methods
 }
 
