@@ -2,10 +2,9 @@ package persistence
 
 import (
 	"database/sql"
-	"fmt"
-	"log"
 
 	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
+	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/util"
 )
 
@@ -26,7 +25,7 @@ func NewSqlDatabaseConn(driver string, connectionConfig config.DatabaseConfig) (
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Connected to %s db", driver)
+	logging.Logger.Info().Msgf("Connected to %s db", driver)
 
 	return &Database{
 		db: db,
@@ -36,9 +35,9 @@ func NewSqlDatabaseConn(driver string, connectionConfig config.DatabaseConfig) (
 func (db *Database) Close() {
 	err := db.db.Close()
 	if err != nil {
-		log.Printf("Error closing the database connection: %v", err)
+		logging.Logger.Info().Msgf("Error closing the database connection: %v", err)
 	}
-	log.Println("Database closed")
+	logging.Logger.Info().Msg("Database closed")
 }
 
 // ExecuteQuery executes the specified SQL query and returns the result
@@ -83,26 +82,13 @@ func (db *Database) ExecuteQuery(query string) ([]map[string]interface{}, error)
 	return result, nil
 }
 
-// Example usage
-func ExampleMySql() {
-	// Create a new SQL database connection
-	db, _ := NewSqlDatabaseConn("mysql", config.DatabaseConfig{ConnectionString: "mysql://user:password@localhost:3306/database"})
-	defer db.Close()
+func (db *Database) Exec(query string, args ...interface{}) (sql.Result, error) {
+	return db.db.Exec(query, args...)
+}
 
-	// Execute a query
-	query := "SELECT * FROM users"
-	result, err := db.ExecuteQuery(query)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Process the query result
-	for _, row := range result {
-		// Access row data using column names
-		fmt.Println("ID:", row["id"])
-		fmt.Println("Name:", row["name"])
-		// ...
-	}
+func (db *Database) QueryRow(query string, args ...interface{}) *sql.Row {
+	logging.Logger.Info().Interface("QueryRow", map[string]any{"query": query, "args": args}).Msg("")
+	return db.db.QueryRow(query, args...)
 }
 
 // Example usage
@@ -115,14 +101,13 @@ func ExamplePostgres() {
 	query := "SELECT * FROM customer"
 	result, err := db.ExecuteQuery(query)
 	if err != nil {
-		log.Fatal(err)
+		logging.Logger.Fatal().Err(err).Msg("")
 	}
 
 	// Process the query result
 	for _, row := range result {
 		// Access row data using column names
-		fmt.Println("ID:", row["id"])
-		fmt.Println("Name:", row["name"])
-		// ...
+		logging.Logger.Info().Msgf("ID: %v", row["id"])
+		logging.Logger.Info().Msgf("Name: %v", row["name"])
 	}
 }

@@ -1,11 +1,11 @@
 package config
 
 import (
-	"log"
 	"os"
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
 )
 
 type DatabaseConfig struct {
@@ -13,13 +13,14 @@ type DatabaseConfig struct {
 	Host             string
 	Port             string
 	User             string
-	Pwd              string 
+	Pwd              string
 	Name             string
 	Options          string
 }
 
 type ServerConfig struct {
-	Port string
+	AppEnv string
+	Port   string
 }
 
 type Config struct {
@@ -32,7 +33,7 @@ type Config struct {
 func LoadEnv() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatalf("Failed to load .env file: %s", err.Error())
+		logging.Logger.Fatal().Msgf("Failed to load .env file: %s", err.Error())
 	}
 }
 
@@ -43,7 +44,8 @@ func GetEnv(key string) string {
 func ProvideConfig() Config {
 	return Config{
 		Server: ServerConfig{
-			Port: os.Getenv("PORT"),
+			AppEnv: os.Getenv("APP_ENV"),
+			Port:   os.Getenv("PORT"),
 		},
 		PostgresDb: DatabaseConfig{
 			ConnectionString: os.Getenv("PG_DB_CONNECTION"),

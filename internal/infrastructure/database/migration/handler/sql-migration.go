@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/persistence"
+	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
 )
 
 func RunSqlMigrations(db *persistence.Database) error {
@@ -30,7 +31,7 @@ func RunSqlMigrations(db *persistence.Database) error {
 		// Check if the migration has already been executed
 		migrationName := GetSqlMigrationName(file)
 		if IsMigrationExecuted(db, migrationName) {
-			fmt.Printf("Skipping migration: %s (already executed)\n", migrationName)
+			logging.Logger.Info().Msgf("Skipping migration: %s (already executed)", migrationName)
 			continue
 		}
 
@@ -47,7 +48,7 @@ func RunSqlMigrations(db *persistence.Database) error {
 		}
 
 		// Print the applied migration
-		fmt.Printf("Applied migration: %s\n", migrationName)
+		logging.Logger.Info().Msgf("Applied migration: %s\n", migrationName)
 	}
 
 	return nil
