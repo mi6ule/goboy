@@ -8,7 +8,11 @@ import (
 	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
 )
 
-func NewRedisClient(connectionConfig config.DatabaseConfig) (*redis.Client, error) {
+type RedisClient struct {
+	Client *redis.Client
+}
+
+func NewRedisClient(connectionConfig config.DatabaseConfig) (*RedisClient, error) {
 	fmt.Println(connectionConfig)
 	dbName, err := strconv.Atoi(connectionConfig.Name)
 	if err != nil {
@@ -21,5 +25,5 @@ func NewRedisClient(connectionConfig config.DatabaseConfig) (*redis.Client, erro
 		DB:       dbName,               // Redis database index
 	})
 
-	return redisClient, nil
+	return &RedisClient{Client: redisClient}, nil
 }

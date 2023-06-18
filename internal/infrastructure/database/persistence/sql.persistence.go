@@ -83,6 +83,15 @@ func (db *Database) ExecuteQuery(query string) ([]map[string]interface{}, error)
 	return result, nil
 }
 
+func (db *Database) Exec(query string, args ...interface{}) (sql.Result, error) {
+	return db.db.Exec(query, args...)
+}
+
+func (db *Database) QueryRow(query string, args ...interface{}) *sql.Row {
+	fmt.Println(query, args)
+	return db.db.QueryRow(query, args...)
+}
+
 // Example usage
 func ExampleMySql() {
 	// Create a new SQL database connection

@@ -5,10 +5,15 @@ import (
 	"fmt"
 	"log"
 
+	// "github.com/google/uuid"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/migration/handler"
+	migration "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/migration/handler"
+	query_model "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/model/query"
+	cacheRepository "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/repository/cach"
+	readRepository "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/repository/query"
+
+	// command_model "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/model/command"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/persistence"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/repository"
 )
 
 var DbConnection *sql.DB
@@ -18,12 +23,19 @@ func main() {
 	configData := config.ProvideConfig()
 	db, _ := persistence.NewSqlDatabaseConn("postgres", configData.PostgresDb)
 	defer db.Close()
+	// TestUserRepo(db)
+
 	if err := migration.RunMigration(db); err != nil {
 		log.Fatalf("failed to run migrations: %v", err)
 	}
 
 	log.Println("Migrations completed successfully")
-	persistence.NoSQLConnection("mongodb", configData.MongoDb)
+	mongoClient, err := persistence.NoSQLConnection("mongodb", configData.MongoDb)
+	if err != nil {
+		log.Fatalf("failed to connect to mongoDb: %v", err)
+	}
+
+	TestClientRepo(mongoClient)
 
 	redisClient, err := persistence.NewRedisClient(configData.Redis)
 	if err != nil {
@@ -31,8 +43,71 @@ func main() {
 	}
 
 	// Redis repository initialization
-	redisRepo := repository.NewRedisRepository(redisClient)
+	redisRepo := cacheRepository.NewRedisRepository(redisClient)
 
 	redisRepo.Set("hello", "hello world!")
 	fmt.Println(redisRepo.Get("hello"))
+}
+
+func TestClientRepo(db *persistence.MongoDatabase) {
+	clientRepository := readRepository.NewMongoDBClientRepository(db.Database)
+
+	client := &query_model.Client{
+		ID:        123456789,
+		UserID:    123456789,
+		PersonID:  123456798,
+		FirstName: "alireza",
+		LastName:  "khaki",
+		Age:       25,
+		Username:  "a.khaki",
+		Email:     "a.khaki@domil.io",
+		Password:  "pass",
+	}
+	err := clientRepository.Create(client)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	findClient, err := clientRepository.GetByID(123456789)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(*&findClient.Age)
+}
+
+func TestUserRepo(db *persistence.Database) {
+	// Create an instance of the SQLUserRepository
+	// userRepo := repository.NewSQLUserRepository(db)
+
+	// // Create a new user
+	// user := &command_model.User{
+	// 	ID:       uuid.New(),
+	// 	Username: "john_doe",
+	// 	Email:    "john@example.com",
+	// 	Password: "secret",
+	// 	PersonID: uuid.New(),
+	// }
+	// err := userRepo.Create(user)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	// // Retrieve a user by ID
+	// retrievedUser, err := userRepo.GetByID(user.ID)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	// // Update the user
+	// user.Username = "jdoe"
+	// err = userRepo.Update(user)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	// // Delete the user
+	// err = userRepo.Delete(user.ID)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 }
