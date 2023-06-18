@@ -2,6 +2,7 @@ package persistence
 
 import (
 	"database/sql"
+	"fmt"
 
 	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
@@ -87,7 +88,7 @@ func (db *Database) Exec(query string, args ...interface{}) (sql.Result, error) 
 }
 
 func (db *Database) QueryRow(query string, args ...interface{}) *sql.Row {
-	logging.Logger.Info().Interface("QueryRow", map[string]any{"query": query, "args": args}).Msg("")
+	fmt.Println(query, args)
 	return db.db.QueryRow(query, args...)
 }
 

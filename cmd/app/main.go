@@ -2,16 +2,19 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
+	"log"
 
+	// "github.com/google/uuid"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
 	migration "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/migration/handler"
 	query_model "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/model/query"
+	cacheRepository "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/repository/cach"
 	readRepository "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/repository/query"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
 
 	// command_model "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/model/command"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/persistence"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/repository"
 )
 
 var DbConnection *sql.DB
@@ -21,32 +24,34 @@ func main() {
 	configData := config.ProvideConfig()
 	db, _ := persistence.NewSqlDatabaseConn("postgres", configData.PostgresDb)
 	defer db.Close()
+	// TestUserRepo(db)
+
 	if err := migration.RunMigration(db); err != nil {
-		logging.Logger.Fatal().Msgf("failed to run migrations: %v", err)
+		log.Fatalf("failed to run migrations: %v", err)
 	}
 
-	logging.Logger.Info().Msg("Migrations completed successfully")
+	log.Println("Migrations completed successfully")
 	mongoClient, err := persistence.NoSQLConnection("mongodb", configData.MongoDb)
 	if err != nil {
-		logging.Logger.Fatal().Msgf("failed to connect to mongoDb: %v", err)
+		log.Fatalf("failed to connect to mongoDb: %v", err)
 	}
 
 	TestClientRepo(mongoClient)
 
 	redisClient, err := persistence.NewRedisClient(configData.Redis)
 	if err != nil {
-		logging.Logger.Fatal().Msgf("failed to connect to redis: %v", err)
+		log.Fatalf("failed to connect to redis: %v", err)
 	}
 
 	// Redis repository initialization
-	redisRepo := repository.NewRedisRepository(redisClient)
+	redisRepo := cacheRepository.NewRedisRepository(redisClient)
 
 	redisRepo.Set("hello", "hello world!")
 	redisResponse, err := redisRepo.Get("hello")
 	if err != nil {
-		logging.Logger.Error().Err(err)
+		logging.Logger.Error().Err(err).Msg("")
 	}
-	logging.Logger.Info().Interface("data", map[string]any{"redisResponse": redisResponse}).Msg("")
+	logging.Logger.Info().Interface("redisResponse", map[string]any{"redisResponse": redisResponse}).Msg("")
 }
 
 func TestClientRepo(db *persistence.MongoDatabase) {
@@ -65,14 +70,14 @@ func TestClientRepo(db *persistence.MongoDatabase) {
 	}
 	err := clientRepository.Create(client)
 	if err != nil {
-		logging.Logger.Fatal().Err(err).Msg("")
+		log.Fatal(err)
 	}
 
 	findClient, err := clientRepository.GetByID(123456789)
 	if err != nil {
-		logging.Logger.Fatal().Err(err).Msg("")
+		log.Fatal(err)
 	}
-	logging.Logger.Info().Interface("findClient", findClient).Msg("")
+	fmt.Println(*&findClient.Age)
 }
 
 func TestUserRepo(db *persistence.Database) {
@@ -89,25 +94,25 @@ func TestUserRepo(db *persistence.Database) {
 	// }
 	// err := userRepo.Create(user)
 	// if err != nil {
-	// 	logging.Logger.Fatal().Msg(err)
+	// 	log.Fatal(err)
 	// }
 
 	// // Retrieve a user by ID
 	// retrievedUser, err := userRepo.GetByID(user.ID)
 	// if err != nil {
-	// 	logging.Logger.Fatal().Msg(err)
+	// 	log.Fatal(err)
 	// }
 
 	// // Update the user
 	// user.Username = "jdoe"
 	// err = userRepo.Update(user)
 	// if err != nil {
-	// 	logging.Logger.Fatal().Msg(err)
+	// 	log.Fatal(err)
 	// }
 
 	// // Delete the user
 	// err = userRepo.Delete(user.ID)
 	// if err != nil {
-	// 	logging.Logger.Fatal().Msg(err)
+	// 	log.Fatal(err)
 	// }
 }
