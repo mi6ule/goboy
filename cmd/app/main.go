@@ -7,10 +7,13 @@ import (
 
 	// "github.com/google/uuid"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/migration/handler"
+	migration "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/migration/handler"
+	query_model "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/model/query"
+	cacheRepository "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/repository/cach"
+	readRepository "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/repository/query"
+
 	// command_model "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/model/command"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/persistence"
-	repository "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/repository"
 )
 
 var DbConnection *sql.DB
@@ -27,7 +30,12 @@ func main() {
 	}
 
 	log.Println("Migrations completed successfully")
-	persistence.NoSQLConnection("mongodb", configData.MongoDb)
+	mongoClient, err := persistence.NoSQLConnection("mongodb", configData.MongoDb)
+	if err != nil {
+		log.Fatalf("failed to connect to mongoDb: %v", err)
+	}
+
+	TestClientRepo(mongoClient)
 
 	redisClient, err := persistence.NewRedisClient(configData.Redis)
 	if err != nil {
@@ -35,10 +43,36 @@ func main() {
 	}
 
 	// Redis repository initialization
-	redisRepo := repository.NewRedisRepository(redisClient)
+	redisRepo := cacheRepository.NewRedisRepository(redisClient)
 
 	redisRepo.Set("hello", "hello world!")
 	fmt.Println(redisRepo.Get("hello"))
+}
+
+func TestClientRepo(db *persistence.MongoDatabase) {
+	clientRepository := readRepository.NewMongoDBClientRepository(db.Database)
+
+	client := &query_model.Client{
+		ID:        123456789,
+		UserID:    123456789,
+		PersonID:  123456798,
+		FirstName: "alireza",
+		LastName:  "khaki",
+		Age:       25,
+		Username:  "a.khaki",
+		Email:     "a.khaki@domil.io",
+		Password:  "pass",
+	}
+	err := clientRepository.Create(client)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	findClient, err := clientRepository.GetByID(123456789)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(*&findClient.Age)
 }
 
 func TestUserRepo(db *persistence.Database) {
