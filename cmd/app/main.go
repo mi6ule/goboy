@@ -47,6 +47,7 @@ func main() {
 	redisRepo.Set("hello", "hello world!")
 	redisResponse, err := redisRepo.Get("hello")
 	if err != nil {
+		logging.Logger.Info().Msg("here in logger error handler")
 		logging.Logger.Error().Err(err).Msg("")
 	}
 	logging.Logger.Info().Interface("redisResponse", map[string]any{"redisResponse": redisResponse}).Msg("")
