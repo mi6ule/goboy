@@ -5,7 +5,7 @@ import (
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
+	errorhandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/error-handler"
 )
 
 type DatabaseConfig struct {
@@ -33,7 +33,7 @@ type Config struct {
 func LoadEnv() {
 	err := godotenv.Load()
 	if err != nil {
-		logging.Logger.Fatal().Msgf("Failed to load .env file: %s", err.Error())
+		errorhandler.ErrorHandler(err, errorhandler.TErrorData{"errType": "Fatal", "msg": "Failed to load .env file"})
 	}
 }
 

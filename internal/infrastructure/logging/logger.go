@@ -13,8 +13,7 @@ var Logger = LoggerGenerator()
 func LoggerGenerator() *zerolog.Logger {
 	zerolog.TimeFieldFormat = time.RFC3339
 	zerolog.ErrorHandler = func(err error) {
-		log.Logger.Info().Msg("here in logger error handler")
-		errorhandler.ErrorHandler(err, map[string]any{})
+		errorhandler.ErrorHandler(err, errorhandler.TErrorData{})
 	}
 	return &log.Logger
 }

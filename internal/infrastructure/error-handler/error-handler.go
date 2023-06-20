@@ -1,15 +1,13 @@
 package errorhandler
 
 import (
-	"fmt"
-
 	"github.com/rs/zerolog/log"
 )
 
-func ErrorHandler(err error, data map[string]any) {
-	fmt.Println(err.Error())
-	log.Logger.Info().Msg("here in error handler")
-	msg := err.Error()
+type TErrorData map[string]any
+
+func ErrorHandler(err error, data TErrorData) {
+	msg := ""
 	errType := "Error"
 	if data["msg"] != nil {
 		msg = data["msg"].(string)
@@ -24,10 +22,10 @@ func ErrorHandler(err error, data map[string]any) {
 	}
 }
 
-func FataError(err error, msg string, data map[string]any) {
+func FataError(err error, msg string, data TErrorData) {
 	log.Logger.Fatal().Interface("data", data).Err(err).Msg(msg)
 }
 
-func GeneralError(err error, msg string, data map[string]any) {
+func GeneralError(err error, msg string, data TErrorData) {
 	log.Logger.Error().Interface("data", data).Err(err).Msg(msg)
 }

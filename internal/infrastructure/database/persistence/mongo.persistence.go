@@ -2,9 +2,11 @@ package persistence
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
+	errorhandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/error-handler"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -23,14 +25,14 @@ func (db MongoDatabaseConnection) Connect() *MongoDatabase {
 	connectionString := db.connectionString
 	lastSlashIndex := strings.LastIndex(connectionString, "/")
 	if lastSlashIndex == -1 || lastSlashIndex == len(connectionString)-1 {
-		logging.Logger.Fatal().Msg("invalid connection string")
+		errorhandler.ErrorHandler(fmt.Errorf("invalid connection string"), errorhandler.TErrorData{"errType": "Fatal"})
 	}
 
 	dbName := connectionString[lastSlashIndex+1:]
 
 	client, err := mongo.NewClient(options.Client().ApplyURI(connectionString))
 	if err != nil {
-		logging.Logger.Fatal().Err(err).Msg("Error while trying to connect to mongodb")
+		errorhandler.ErrorHandler(err, errorhandler.TErrorData{"errType": "Fatal", "msg": "Error while trying to connect to mongodb"})
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -38,7 +40,7 @@ func (db MongoDatabaseConnection) Connect() *MongoDatabase {
 
 	err = client.Connect(ctx)
 	if err != nil {
-		logging.Logger.Fatal().Err(err).Msg("Error while trying to connect to mongodb")
+		errorhandler.ErrorHandler(err, errorhandler.TErrorData{"errType": "Fatal", "msg": "Error while trying to connect to mongodb"})
 	}
 
 	database := client.Database(dbName)
