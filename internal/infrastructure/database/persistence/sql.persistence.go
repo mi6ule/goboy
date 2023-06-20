@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
+	errorhandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/error-handler"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/util"
 )
@@ -101,7 +102,7 @@ func ExamplePostgres() {
 	query := "SELECT * FROM customer"
 	result, err := db.ExecuteQuery(query)
 	if err != nil {
-		logging.Logger.Fatal().Err(err).Msg("")
+		errorhandler.ErrorHandler(err, errorhandler.TErrorData{"errType": "Fatal"})
 	}
 
 	// Process the query result
