@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/hibiken/asynq"
+	"github.com/rs/zerolog"
 	errorhandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/error-handler"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
 )
@@ -16,6 +17,36 @@ const (
 	TypeEmailDelivery = "email:deliver"
 	TypeImageResize   = "image:resize"
 )
+
+// A list of channels.
+const (
+	EmailChannel       = "email"
+	ImageResizeChannel = "image"
+)
+
+type AsynqZerologLogger struct {
+	logger *zerolog.Logger
+}
+
+func (l *AsynqZerologLogger) Debug(args ...interface{}) {
+	l.logger.Debug().Msgf("%v", args...)
+}
+
+func (l *AsynqZerologLogger) Info(args ...interface{}) {
+	l.logger.Info().Msgf("%v", args...)
+}
+
+func (l *AsynqZerologLogger) Warn(args ...interface{}) {
+	l.logger.Warn().Msgf("%v", args...)
+}
+
+func (l *AsynqZerologLogger) Error(args ...interface{}) {
+	l.logger.Error().Msgf("%v", args...)
+}
+
+func (l *AsynqZerologLogger) Fatal(args ...interface{}) {
+	l.logger.Fatal().Msgf("%v", args...)
+}
 
 type EmailDeliveryPayload struct {
 	UserID     int
@@ -85,52 +116,26 @@ func NewImageProcessor() *ImageProcessor {
 	return &ImageProcessor{}
 }
 
+func EnqueueNewTask(client *asynq.Client, t *asynq.Task, queue string, opts ...asynq.Option) (*asynq.TaskInfo, error) {
+	opts = append(opts, asynq.Queue(queue))
+	info, err := client.Enqueue(t, opts...)
+	logging.Logger.Info().Msgf("enqueued task: id=%s queue=%s", info.ID, info.Queue)
+	return info, err
+}
+
 // --------------------------------------------------------------------------------------
 
 func InitMessageQueue(redisAddr string) {
 	client := asynq.NewClient(asynq.RedisClientOpt{Addr: redisAddr})
 	defer client.Close()
-
-	// ------------------------------------------------------
-	// Example 1: Enqueue task to be processed immediately.
-	//            Use (*Client).Enqueue method.
-	// ------------------------------------------------------
-
 	task, err := NewEmailDeliveryTask(42, "some:template:id")
 	if err != nil {
 		errorhandler.ErrorHandler(fmt.Errorf("could not create task: %v", err), errorhandler.TErrorData{})
 	}
-	info, err := client.Enqueue(task)
+	_, err = EnqueueNewTask(client, task, EmailChannel)
 	if err != nil {
 		errorhandler.ErrorHandler(fmt.Errorf("could not enqueue task: %v", err), errorhandler.TErrorData{})
 	}
-	logging.Logger.Info().Msgf("enqueued task: id=%s queue=%s", info.ID, info.Queue)
-
-	// ------------------------------------------------------------
-	// Example 2: Schedule task to be processed in the future.
-	//            Use ProcessIn or ProcessAt option.
-	// ------------------------------------------------------------
-
-	info, err = client.Enqueue(task, asynq.ProcessIn(1*time.Hour))
-	if err != nil {
-		errorhandler.ErrorHandler(fmt.Errorf("could not schedule task: %v", err), errorhandler.TErrorData{})
-	}
-	logging.Logger.Info().Msgf("enqueued task: id=%s queue=%s", info.ID, info.Queue)
-
-	// ----------------------------------------------------------------------------
-	// Example 3: Set other options to tune task processing behavior.
-	//            Options include MaxRetry, Queue, Timeout, Deadline, Unique etc.
-	// ----------------------------------------------------------------------------
-
-	task, err = NewImageResizeTask("https://example.com/myassets/image.jpg")
-	if err != nil {
-		errorhandler.ErrorHandler(fmt.Errorf("could not create task: %v", err), errorhandler.TErrorData{})
-	}
-	info, err = client.Enqueue(task, asynq.MaxRetry(10), asynq.Timeout(3*time.Minute))
-	if err != nil {
-		errorhandler.ErrorHandler(fmt.Errorf("could not enqueue task: %v", err), errorhandler.TErrorData{})
-	}
-	logging.Logger.Info().Msgf("enqueued task: id=%s queue=%s", info.ID, info.Queue)
 }
 
 func InitMessageQueueMuxServer(redisAddr string) {
@@ -141,11 +146,11 @@ func InitMessageQueueMuxServer(redisAddr string) {
 			Concurrency: 10,
 			// Optionally specify multiple queues with different priority.
 			Queues: map[string]int{
-				"critical":        6,
-				"default":         3,
-				"low":             1,
-				TypeEmailDelivery: 1,
-				TypeImageResize:   1,
+				EmailChannel:       1,
+				ImageResizeChannel: 1,
+			},
+			Logger: &AsynqZerologLogger{
+				logger: logging.Logger,
 			},
 			// See the godoc for other configuration options
 		},
@@ -153,6 +158,7 @@ func InitMessageQueueMuxServer(redisAddr string) {
 
 	// mux maps a type to a handler
 	mux := asynq.NewServeMux()
+	mux.Use(loggingMiddleware)
 	mux.HandleFunc(TypeEmailDelivery, HandleEmailDeliveryTask)
 	mux.Handle(TypeImageResize, NewImageProcessor())
 	// ...register other handlers...
@@ -160,4 +166,17 @@ func InitMessageQueueMuxServer(redisAddr string) {
 	if err := srv.Run(mux); err != nil {
 		errorhandler.ErrorHandler(fmt.Errorf("could not run server: %v", err), errorhandler.TErrorData{})
 	}
+}
+
+func loggingMiddleware(h asynq.Handler) asynq.Handler {
+	return asynq.HandlerFunc(func(ctx context.Context, t *asynq.Task) error {
+		start := time.Now()
+		logging.Logger.Info().Msgf("Start processing %q", t.Type())
+		err := h.ProcessTask(ctx, t)
+		if err != nil {
+			return err
+		}
+		logging.Logger.Info().Msgf("Finished processing %q: Elapsed Time = %v", t.Type(), time.Since(start))
+		return nil
+	})
 }
