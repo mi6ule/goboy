@@ -52,8 +52,7 @@ func main() {
 		errorhandler.ErrorHandler(err, errorhandler.TErrorData{})
 	}
 	logging.Logger.Info().Interface("redisResponse", map[string]any{"redisResponse": redisResponse}).Msg("")
-	messagequeue.InitMessageQueue(configData.Redis.Host)
-	messagequeue.InitMessageQueueMuxServer(configData.Redis.Host)
+	messagequeue.TestMessageQueue(configData.Redis.Host)
 }
 
 func TestClientRepo(db *persistence.MongoDatabase) {

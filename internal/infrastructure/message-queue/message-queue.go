@@ -1,6 +1,7 @@
 package messagequeue
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/hibiken/asynq"
@@ -15,10 +16,13 @@ import (
 const (
 	EmailChannel       = "email"
 	ImageResizeChannel = "image"
+	TestChannel        = "test"
 )
 
 type AsynqMQ struct {
-	Client *asynq.Client
+	RedisAddr string
+	Client    *asynq.Client
+	Scheduler *asynq.Scheduler
 }
 
 func (mq *AsynqMQ) Enqueue(t *asynq.Task, queue string, opts ...asynq.Option) (*asynq.TaskInfo, error) {
@@ -28,17 +32,35 @@ func (mq *AsynqMQ) Enqueue(t *asynq.Task, queue string, opts ...asynq.Option) (*
 	return info, err
 }
 
-// --------------------------------------------------------------------------------------
+func (mq *AsynqMQ) Init() {
+	mq.InitClient()
+	mq.InitScheduler(asynq.RedisClientOpt{Addr: mq.RedisAddr}, &asynq.SchedulerOpts{Logger: &logging.AsynqZerologLogger{Logger: logging.Logger}})
+}
+
+func (mq *AsynqMQ) InitClient() {
+	client := asynq.NewClient(asynq.RedisClientOpt{Addr: mq.RedisAddr})
+	mq.Client = client
+}
+
+func (mq *AsynqMQ) InitScheduler(redisOpt asynq.RedisClientOpt, schedulerOpts *asynq.SchedulerOpts) {
+	scheduler := asynq.NewScheduler(redisOpt, schedulerOpts)
+	mq.Scheduler = scheduler
+}
+
+func NewAsynqMQ(redisAddr string) *AsynqMQ {
+	mq := &AsynqMQ{
+		RedisAddr: redisAddr,
+	}
+	mq.Init()
+	return mq
+}
 
 func InitMessageQueue(redisAddr string) *AsynqMQ {
-	mq := &AsynqMQ{
-		Client: asynq.NewClient(asynq.RedisClientOpt{Addr: redisAddr}),
-	}
-	defer mq.Client.Close()
-	task, err := task.NewEmailDeliveryTask(42, "some-template-id")
-	errorhandler.CheckForError("Could not enqueue email: %v", err, errorhandler.TErrorData{})
-	_, err = mq.Enqueue(task, EmailChannel, asynq.Retention(2*time.Minute))
-	errorhandler.CheckForError("Could not enqueue image resize: %v", err, errorhandler.TErrorData{})
+	mq := NewAsynqMQ(redisAddr)
+	go func() {
+		err := mq.Scheduler.Run()
+		errorhandler.CheckForError("Could not run schedulers: %v", err, errorhandler.TErrorData{})
+	}()
 	return mq
 }
 
@@ -65,4 +87,17 @@ func InitMessageQueueMuxServer(redisAddr string) {
 
 	err := srv.Run(mux)
 	errorhandler.CheckForError("Could not init mux server: %v", err, errorhandler.TErrorData{})
+}
+
+func TestMessageQueue(redisAddr string) *AsynqMQ {
+	mq := InitMessageQueue(redisAddr)
+	t, err := task.NewEmailDeliveryTask(42, "some-template-id")
+	errorhandler.CheckForError("Could not enqueue email: %v", err, errorhandler.TErrorData{})
+	_, err = mq.Enqueue(t, EmailChannel, asynq.Retention(2*time.Minute))
+	errorhandler.CheckForError("Could not enqueue image resize: %v", err, errorhandler.TErrorData{})
+	emailPayload, _ := json.Marshal(task.EmailDeliveryPayload{UserID: 1, TemplateID: "interval-temp"})
+	mq.Scheduler.Register("@every 30s", asynq.NewTask(task.EmailDeliveryTask, emailPayload, asynq.Queue(EmailChannel)))
+
+	InitMessageQueueMuxServer(redisAddr)
+	return mq
 }
