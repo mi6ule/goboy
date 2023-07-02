@@ -1,6 +1,8 @@
 package errorhandler
 
 import (
+	"fmt"
+
 	"github.com/rs/zerolog/log"
 )
 
@@ -28,4 +30,14 @@ func FataError(err error, msg string, data TErrorData) {
 
 func GeneralError(err error, msg string, data TErrorData) {
 	log.Logger.Error().Interface("data", data).Err(err).Msg(msg)
+}
+
+func CheckForError(prefix string, err error, data TErrorData) {
+	if err != nil {
+		errMsg := err
+		if len(prefix) > 0 {
+			errMsg = fmt.Errorf(prefix, err)
+		}
+		ErrorHandler(errMsg, data)
+	}
 }
