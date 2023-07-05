@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 
 	// "github.com/google/uuid"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
@@ -11,6 +12,7 @@ import (
 	readRepository "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/repository/query"
 	errorhandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/error-handler"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
+
 	// messagequeue "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/message-queue"
 
 	// command_model "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/model/command"
@@ -36,8 +38,6 @@ func main() {
 		errorhandler.ErrorHandler(err, errorhandler.TErrorData{"errType": "Fatal", "msg": "failed to connect to mongoDb"})
 	}
 
-	TestClientRepo(mongoClient)
-
 	redisClient, err := persistence.NewRedisClient(configData.Redis)
 	if err != nil {
 		errorhandler.ErrorHandler(err, errorhandler.TErrorData{"errType": "Fatal", "msg": "failed to connect to redis"})
@@ -53,10 +53,11 @@ func main() {
 	}
 	logging.Logger.Info().Interface("redisResponse", map[string]any{"redisResponse": redisResponse}).Msg("")
 	// messagequeue.TestMessageQueue(configData.Redis.Host)
+	TestClientRepo(mongoClient, redisClient)
 }
 
-func TestClientRepo(db *persistence.MongoDatabase) {
-	clientRepository := readRepository.NewMongoDBClientRepository(db.Database)
+func TestClientRepo(db *persistence.MongoDatabase, redisClient *persistence.RedisClient) {
+	clientRepository := readRepository.NewMongoDBClientRepository(db.Database, redisClient)
 
 	client := &query_model.Client{
 		ID:        123456789,
@@ -79,6 +80,7 @@ func TestClientRepo(db *persistence.MongoDatabase) {
 		errorhandler.ErrorHandler(err, errorhandler.TErrorData{"errType": "Fatal"})
 	}
 	logging.Logger.Info().Msgf("Found clien's age is: %v", findClient.Age)
+	fmt.Println("findClient: ", *findClient)
 }
 
 func TestUserRepo(db *persistence.Database) {

@@ -24,4 +24,12 @@ func (r *RedisRepository) Keys(pattern string) ([]string, error) {
 	return r.Client.Client.Keys(pattern).Result()
 }
 
+func (r *RedisRepository) Hget(key string, filed string) (string, error) {
+	return r.Client.Client.HGet(key, filed).Result()
+}
+
+func (r *RedisRepository) Hset(key string, filed string, value interface{}) error {
+	return r.Client.Client.HSet(key, filed, value).Err()
+}
+
 // Add more methods as per your requirements
