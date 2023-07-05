@@ -7,11 +7,11 @@ import (
 	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
 	migration "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/migration/handler"
 	query_model "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/model/query"
-	cacheRepository "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/repository/cach"
+	cacheRepository "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/repository/cache"
 	readRepository "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/repository/query"
 	errorhandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/error-handler"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
-	messagequeue "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/message-queue"
+	// messagequeue "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/message-queue"
 
 	// command_model "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/model/command"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/persistence"
@@ -52,7 +52,7 @@ func main() {
 		errorhandler.ErrorHandler(err, errorhandler.TErrorData{})
 	}
 	logging.Logger.Info().Interface("redisResponse", map[string]any{"redisResponse": redisResponse}).Msg("")
-	messagequeue.TestMessageQueue(configData.Redis.Host)
+	// messagequeue.TestMessageQueue(configData.Redis.Host)
 }
 
 func TestClientRepo(db *persistence.MongoDatabase) {
