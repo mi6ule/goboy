@@ -1,19 +1,28 @@
 package logging
 
 import (
+	"os"
 	"time"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	errorhandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/error-handler"
+	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
 )
 
-var Logger = LoggerGenerator()
+var Logger = LoggerGenerator(nil)
 
-func LoggerGenerator() *zerolog.Logger {
+func LoggerGenerator(mode *string) *zerolog.Logger {
+	if mode == nil {
+		config.LoadEnv()
+		envVars := config.ProvideConfig()
+		mode = &envVars.Server.AppEnv
+	}
 	zerolog.TimeFieldFormat = time.RFC3339
-	zerolog.ErrorHandler = func(err error) {
-		errorhandler.ErrorHandler(err, errorhandler.TErrorData{})
+	zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	if *mode == "development" {
+		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout}).With().Caller().Logger()
+	} else {
+		log.Logger = log.With().CallerWithSkipFrameCount(2).Logger()
 	}
 	return &log.Logger
 }
