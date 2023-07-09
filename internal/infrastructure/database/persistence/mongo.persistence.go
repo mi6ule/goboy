@@ -45,7 +45,7 @@ func (db MongoDatabaseConnection) Connect() *MongoDatabase {
 
 	database := client.Database(dbName)
 
-	logging.Logger.Info().Msg("connected to mongodb")
+	logging.Info((logging.LoggerInput{Message: "connected to mongodb"}))
 
 	return &MongoDatabase{
 		Client:   client,
@@ -59,6 +59,6 @@ func (db MongoDatabase) Disconnect() {
 
 	err := db.Client.Disconnect(ctx)
 	if err != nil {
-		logging.Logger.Info().Msgf("Error disconnecting from MongoDB: %v", err)
+		logging.Info((logging.LoggerInput{Message: fmt.Sprintf("Error disconnecting from MongoDB: %v", err)}))
 	}
 }

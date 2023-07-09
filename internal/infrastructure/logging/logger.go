@@ -9,7 +9,7 @@ import (
 	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
 )
 
-var Logger = LoggerGenerator(nil)
+var AppLogger = LoggerGenerator(nil)
 
 func LoggerGenerator(mode *string) *zerolog.Logger {
 	if mode == nil {
@@ -25,4 +25,53 @@ func LoggerGenerator(mode *string) *zerolog.Logger {
 		log.Logger = log.With().CallerWithSkipFrameCount(2).Logger()
 	}
 	return &log.Logger
+}
+
+type LoggerInput struct {
+	Message string
+	Data    map[string]any //optional
+	Err     error          //optional
+}
+
+func Info(inp LoggerInput) {
+	log := AppLogger.Info()
+	if inp.Data != nil {
+		log.Interface("data", inp.Data)
+	}
+	log.Msg(inp.Message)
+}
+
+func Warn(inp LoggerInput) {
+	log := AppLogger.Warn()
+	if inp.Data != nil {
+		log.Interface("data", inp.Data)
+	}
+	log.Msg(inp.Message)
+}
+
+func Error(inp LoggerInput) {
+	log := AppLogger.Error()
+	if inp.Data != nil {
+		log.Interface("data", inp.Data)
+	}
+	if inp.Err != nil {
+		log.Err(inp.Err)
+	}
+	log.Msg(inp.Message)
+}
+
+func Debug(inp LoggerInput) {
+	log := AppLogger.Debug()
+	if inp.Data != nil {
+		log.Interface("data", inp.Data)
+	}
+	log.Msg(inp.Message)
+}
+
+func Fatal(inp LoggerInput) {
+	log := AppLogger.Fatal()
+	if inp.Data != nil {
+		log.Interface("data", inp.Data)
+	}
+	log.Msg(inp.Message)
 }

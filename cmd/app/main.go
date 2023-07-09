@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 
 	// "github.com/google/uuid"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
@@ -30,7 +31,7 @@ func main() {
 		errorhandler.ErrorHandler(err, errorhandler.TErrorData{"errType": "Fatal", "msg": "failed to run migrations"})
 	}
 
-	logging.Logger.Info().Msg("Migrations completed successfully")
+	logging.Info((logging.LoggerInput{Message: "Migrations completed successfully"}))
 	mongoClient, err := persistence.NoSQLConnection("mongodb", configData.MongoDb)
 	if err != nil {
 		errorhandler.ErrorHandler(err, errorhandler.TErrorData{"errType": "Fatal", "msg": "failed to connect to mongoDb"})
@@ -51,7 +52,7 @@ func main() {
 	if err != nil {
 		errorhandler.ErrorHandler(err, errorhandler.TErrorData{})
 	}
-	logging.Logger.Info().Interface("redisResponse", map[string]any{"redisResponse": redisResponse}).Msg("")
+	logging.Info((logging.LoggerInput{Message: "", Data: map[string]any{"redisResponse": redisResponse}}))
 	messagequeue.TestMessageQueue(configData.Redis.Host)
 }
 
@@ -78,7 +79,7 @@ func TestClientRepo(db *persistence.MongoDatabase) {
 	if err != nil {
 		errorhandler.ErrorHandler(err, errorhandler.TErrorData{"errType": "Fatal"})
 	}
-	logging.Logger.Info().Msgf("Found clien's age is: %v", findClient.Age)
+	logging.Info((logging.LoggerInput{Message: fmt.Sprintf("Found clien's age is: %v", findClient.Age)}))
 }
 
 func TestUserRepo(db *persistence.Database) {

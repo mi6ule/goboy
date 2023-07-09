@@ -70,7 +70,7 @@ func ProcessQueues(redisAddr string) {
 				queueconst.ImageResizeQueue: 2,
 			},
 			Logger: &logging.AsynqZerologLogger{
-				Logger: logging.Logger,
+				Logger: logging.AppLogger,
 			},
 		},
 	)
@@ -95,7 +95,7 @@ func TestMessageQueue(redisAddr string) *AsynqMQ {
 	mq.PushToOtherQueue(queueconst.SecondEmailQueue, queueconst.FirstEmailQueue)
 
 	firstEmailQueueInfo, _ := mq.Inspector.GetQueueInfo(queueconst.FirstEmailQueue)
-	logging.Logger.Info().Interface("firstEmailQueueInfo", firstEmailQueueInfo).Msg("")
+	logging.Info(logging.LoggerInput{Message: "", Data: map[string]any{"firstEmailQueueInfo": firstEmailQueueInfo}})
 
 	ProcessQueues(redisAddr)
 	return mq

@@ -17,7 +17,7 @@ func (processor *ImageProcessor) ProcessTask(ctx context.Context, t *asynq.Task)
 	if err := json.Unmarshal(t.Payload(), &p); err != nil {
 		return fmt.Errorf("json.Unmarshal failed: %v: %w", err, asynq.SkipRetry)
 	}
-	logging.Logger.Info().Msgf("Resizing image: src=%s", p.SourceURL)
+	logging.Info(logging.LoggerInput{Message: fmt.Sprintf("Resizing image: src=%s", p.SourceURL)})
 	// Image resizing code ...
 	return nil
 }

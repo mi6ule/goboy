@@ -2,6 +2,7 @@ package persistence
 
 import (
 	"database/sql"
+	"fmt"
 
 	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
 	errorhandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/error-handler"
@@ -26,7 +27,7 @@ func NewSqlDatabaseConn(driver string, connectionConfig config.DatabaseConfig) (
 	if err != nil {
 		return nil, err
 	}
-	logging.Logger.Info().Msgf("Connected to %s db", driver)
+	logging.Info(logging.LoggerInput{Message: fmt.Sprintf("Connected to %s db", driver)})
 
 	return &Database{
 		db: db,
@@ -36,9 +37,9 @@ func NewSqlDatabaseConn(driver string, connectionConfig config.DatabaseConfig) (
 func (db *Database) Close() {
 	err := db.db.Close()
 	if err != nil {
-		logging.Logger.Info().Msgf("Error closing the database connection: %v", err)
+		logging.Info(logging.LoggerInput{Message: fmt.Sprintf("Error closing the database connection: %v", err)})
 	}
-	logging.Logger.Info().Msg("Database closed")
+	logging.Info(logging.LoggerInput{Message: "Database closed"})
 }
 
 // ExecuteQuery executes the specified SQL query and returns the result
@@ -88,7 +89,7 @@ func (db *Database) Exec(query string, args ...interface{}) (sql.Result, error) 
 }
 
 func (db *Database) QueryRow(query string, args ...interface{}) *sql.Row {
-	logging.Logger.Info().Interface("QueryRow", map[string]any{"query": query, "args": args})
+	logging.Info(logging.LoggerInput{Message: "", Data: map[string]any{"query": query, "args": args}})
 	return db.db.QueryRow(query, args...)
 }
 
@@ -108,7 +109,7 @@ func ExamplePostgres() {
 	// Process the query result
 	for _, row := range result {
 		// Access row data using column names
-		logging.Logger.Info().Msgf("ID: %v", row["id"])
-		logging.Logger.Info().Msgf("Name: %v", row["name"])
+		logging.Info(logging.LoggerInput{Message: fmt.Sprintf("ID: %v", row["id"])})
+		logging.Info(logging.LoggerInput{Message: fmt.Sprintf("Name: %v", row["name"])})
 	}
 }
