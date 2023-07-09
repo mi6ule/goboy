@@ -73,7 +73,7 @@ func TestClientRepo(db *persistence.MongoDatabase, redisClient *persistence.Redi
 	}
 
 	// Use a channel to receive the findClient value
-	findClientChan := make(chan *query_model.Client)
+	findClientChan := make(chan *query_model.Client, 1)
 
 	// Use a WaitGroup to wait for all goroutines to finish
 	var wg sync.WaitGroup
