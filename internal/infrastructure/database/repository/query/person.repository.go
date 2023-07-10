@@ -9,6 +9,7 @@ import (
 	query_model "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/model/query"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/persistence"
 	cacheRepository "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/repository/cache"
+	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -49,18 +50,18 @@ func (r *MongoDBClientRepository) GetByID(id int) (*query_model.Client, error) {
 	}
 
 	if len(isInCache) > 0 {
-		fmt.Println("isInCache", true)
+		logging.Info(logging.LoggerInput{Message: fmt.Sprintf("isInCache: %v", true)})
 		var client query_model.Client
 		err := json.Unmarshal([]byte(isInCache), &client)
 		if err != nil {
-			fmt.Println("Error:", err)
+			logging.Error(logging.LoggerInput{Message: "", Err: err})
 			return nil, err
 		}
 
 		return &client, nil
 	}
 
-	fmt.Println("isInCache", false)
+	logging.Info(logging.LoggerInput{Message: fmt.Sprintf("isInCache: %v", false)})
 	filter := bson.M{"id": id}
 
 	result := r.collection.FindOne(context.Background(), filter)

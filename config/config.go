@@ -5,7 +5,6 @@ import (
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
-	errorhandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/error-handler"
 )
 
 type DatabaseConfig struct {
@@ -30,11 +29,8 @@ type Config struct {
 	Redis      DatabaseConfig
 }
 
-func LoadEnv() {
-	err := godotenv.Load()
-	if err != nil {
-		errorhandler.ErrorHandler(err, errorhandler.TErrorData{"errType": "Fatal", "msg": "Failed to load .env file"})
-	}
+func LoadEnv() error {
+	return godotenv.Load()
 }
 
 func GetEnv(key string) string {

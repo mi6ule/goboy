@@ -31,7 +31,7 @@ func RunSqlMigrations(db *persistence.Database) error {
 		// Check if the migration has already been executed
 		migrationName := GetSqlMigrationName(file)
 		if IsMigrationExecuted(db, migrationName) {
-			logging.Logger.Info().Msgf("Skipping migration: %s (already executed)", migrationName)
+			logging.Info((logging.LoggerInput{Message: fmt.Sprintf("Skipping migration: %s (already executed)", migrationName)}))
 			continue
 		}
 
@@ -48,7 +48,7 @@ func RunSqlMigrations(db *persistence.Database) error {
 		}
 
 		// Print the applied migration
-		logging.Logger.Info().Msgf("Applied migration: %s\n", migrationName)
+		logging.Info((logging.LoggerInput{Message: fmt.Sprintf("Applied migration: %s\n", migrationName)}))
 	}
 
 	return nil

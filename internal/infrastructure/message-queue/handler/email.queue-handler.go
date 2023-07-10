@@ -15,7 +15,7 @@ func HandleEmailDeliveryTask(ctx context.Context, t *asynq.Task) error {
 	if err := json.Unmarshal(t.Payload(), &p); err != nil {
 		return fmt.Errorf("json.Unmarshal failed: %v: %w", err, asynq.SkipRetry)
 	}
-	logging.Logger.Info().Msgf("Sending Email to User: user_id=%d, template_id=%s", p.UserID, p.TemplateID)
+	logging.Info((logging.LoggerInput{Message: fmt.Sprintf("Sending Email to User: user_id=%d, template_id=%s", p.UserID, p.TemplateID)}))
 	// Email delivery code ...
 	return nil
 }
