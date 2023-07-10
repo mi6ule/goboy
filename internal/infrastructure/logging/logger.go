@@ -28,6 +28,7 @@ func LoggerGenerator(mode *string) *zerolog.Logger {
 
 type LoggerInput struct {
 	Message string
+	Code    string         //optional
 	Data    map[string]any //optional
 	Err     error          //optional
 	Path    string         //optional
@@ -39,6 +40,9 @@ func Info(inp LoggerInput) {
 	if inp.Data != nil {
 		log.Interface("data", inp.Data)
 	}
+	if inp.Code != "" {
+		log.Str("Code", inp.Code)
+	}
 	log.Msg(inp.Message)
 }
 
@@ -48,6 +52,9 @@ func Warn(inp LoggerInput) {
 	if inp.Data != nil {
 		log.Interface("data", inp.Data)
 	}
+	if inp.Code != "" {
+		log.Str("Code", inp.Code)
+	}
 	log.Msg(inp.Message)
 }
 
@@ -56,6 +63,9 @@ func Error(inp LoggerInput) {
 	log := AppLogger.Error().Str("caller", path)
 	if inp.Data != nil {
 		log.Interface("data", inp.Data)
+	}
+	if inp.Code != "" {
+		log.Str("Code", inp.Code)
 	}
 	if inp.Err != nil {
 		log.Err(inp.Err)
@@ -69,6 +79,9 @@ func Debug(inp LoggerInput) {
 	if inp.Data != nil {
 		log.Interface("data", inp.Data)
 	}
+	if inp.Code != "" {
+		log.Str("Code", inp.Code)
+	}
 	log.Msg(inp.Message)
 }
 
@@ -77,6 +90,9 @@ func Fatal(inp LoggerInput) {
 	log := AppLogger.Fatal().Str("caller", path)
 	if inp.Data != nil {
 		log.Interface("data", inp.Data)
+	}
+	if inp.Code != "" {
+		log.Str("Code", inp.Code)
 	}
 	log.Msg(inp.Message)
 }

@@ -8,6 +8,7 @@ import (
 type ErrorInput struct {
 	Message string
 	Err     error
+	Code    string         //optional
 	Data    map[string]any //optional
 	ErrType string         //optional
 	Path    string         //optional
@@ -25,9 +26,9 @@ func ErrorHandler(inp ErrorInput) {
 }
 
 func FataError(inp ErrorInput) {
-	logging.Fatal(logging.LoggerInput{Message: inp.Message, Err: inp.Err, Data: inp.Data, Path: inp.Path})
+	logging.Fatal(logging.LoggerInput{Message: inp.Message, Err: inp.Err, Data: inp.Data, Path: inp.Path, Code: inp.Code})
 }
 
 func GeneralError(inp ErrorInput) {
-	logging.Error(logging.LoggerInput{Message: inp.Message, Err: inp.Err, Data: inp.Data, Path: inp.Path})
+	logging.Error(logging.LoggerInput{Message: inp.Message, Err: inp.Err, Data: inp.Data, Path: inp.Path, Code: inp.Code})
 }

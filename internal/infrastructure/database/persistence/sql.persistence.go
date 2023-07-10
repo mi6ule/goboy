@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
+	constants "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/constant"
 	errorhandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/error-handler"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/util"
@@ -36,9 +37,7 @@ func NewSqlDatabaseConn(driver string, connectionConfig config.DatabaseConfig) (
 
 func (db *Database) Close() {
 	err := db.db.Close()
-	if err != nil {
-		logging.Info(logging.LoggerInput{Message: fmt.Sprintf("Error closing the database connection: %v", err)})
-	}
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "Error closing the database connection", Err: err})
 	logging.Info(logging.LoggerInput{Message: "Database closed"})
 }
 
@@ -103,7 +102,7 @@ func ExamplePostgres() {
 	query := "SELECT * FROM customer"
 	result, err := db.ExecuteQuery(query)
 	if err != nil {
-		errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "", Err: err, ErrType: "Fatal"})
+		errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "", Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100012})
 	}
 
 	// Process the query result

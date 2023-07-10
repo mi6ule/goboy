@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/hibiken/asynq"
+	constants "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/constant"
 	errorhandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/error-handler"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
 	queueconst "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/message-queue/const"
@@ -53,7 +54,7 @@ func NewAsynqMQ(redisAddr string) *AsynqMQ {
 	}
 	go func() {
 		err := mq.Scheduler.Run()
-		errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "Could not run asynq scheduler", Err: err, ErrType: "Fatal"})
+		errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "Could not run asynq scheduler", Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100013})
 	}()
 	return mq
 }
@@ -82,15 +83,15 @@ func ProcessQueues(redisAddr string) {
 
 	err := srv.Run(mux)
 
-	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "Could not init mux server", Err: err, ErrType: "Fatal"})
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "Could not init mux server", Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100014})
 }
 
 func TestMessageQueue(redisAddr string) *AsynqMQ {
 	mq := NewAsynqMQ(redisAddr)
 	t, err := task.NewEmailDeliveryTask(42, "some-template-id")
-	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "Could not enqueue email", Err: err})
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "Could not enqueue email", Err: err, Code: constants.ERROR_CODE_100015})
 	_, err = mq.Enqueue(t, queueconst.FirstEmailQueue, asynq.Retention(2*time.Minute))
-	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "Could not enqueue image resize", Err: err})
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "Could not enqueue image resize", Err: err, Code: constants.ERROR_CODE_100016})
 	emailPayload, _ := json.Marshal(task.EmailDeliveryPayload{UserID: 1, TemplateID: "interval-temp"})
 	mq.Scheduler.Register("@every 2s", asynq.NewTask(task.EmailDeliveryTask, emailPayload, asynq.Queue(queueconst.FirstEmailQueue)))
 	mq.PushToOtherQueue(queueconst.SecondEmailQueue, queueconst.FirstEmailQueue)
