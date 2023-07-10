@@ -1,43 +1,33 @@
 package errorhandler
 
 import (
-	"fmt"
-
-	"github.com/rs/zerolog/log"
+	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
+	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/util"
 )
 
-type TErrorData map[string]any
-
-func ErrorHandler(err error, data TErrorData) {
-	msg := ""
-	errType := "Error"
-	if data["msg"] != nil {
-		msg = data["msg"].(string)
-	}
-	if data["errType"] != nil {
-		errType = data["errType"].(string)
-	}
-	if errType == "Fatal" {
-		FataError(err, msg, data)
-	} else if errType == "Error" {
-		GeneralError(err, msg, data)
-	}
+type ErrorInput struct {
+	Message string
+	Err     error
+	Data    map[string]any //optional
+	ErrType string         //optional
+	Path    string         //optional
 }
 
-func FataError(err error, msg string, data TErrorData) {
-	log.Logger.Fatal().Interface("data", data).Err(err).Msg(msg)
-}
-
-func GeneralError(err error, msg string, data TErrorData) {
-	log.Logger.Error().Interface("data", data).Err(err).Msg(msg)
-}
-
-func CheckForError(prefix string, err error, data TErrorData) {
-	if err != nil {
-		errMsg := err
-		if len(prefix) > 0 {
-			errMsg = fmt.Errorf(prefix, err)
+func ErrorHandler(inp ErrorInput) {
+	if inp.Err != nil {
+		inp.Path = util.GetInvokedPath("")
+		if inp.ErrType == "Fatal" {
+			FataError(inp)
+		} else {
+			GeneralError(inp)
 		}
-		ErrorHandler(errMsg, data)
 	}
+}
+
+func FataError(inp ErrorInput) {
+	logging.Fatal(logging.LoggerInput{Message: inp.Message, Err: inp.Err, Data: inp.Data, Path: inp.Path})
+}
+
+func GeneralError(inp ErrorInput) {
+	logging.Error(logging.LoggerInput{Message: inp.Message, Err: inp.Err, Data: inp.Data, Path: inp.Path})
 }

@@ -103,7 +103,7 @@ func ExamplePostgres() {
 	query := "SELECT * FROM customer"
 	result, err := db.ExecuteQuery(query)
 	if err != nil {
-		errorhandler.ErrorHandler(err, errorhandler.TErrorData{"errType": "Fatal"})
+		errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "", Err: err, ErrType: "Fatal"})
 	}
 
 	// Process the query result

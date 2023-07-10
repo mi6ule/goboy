@@ -25,23 +25,21 @@ func (db MongoDatabaseConnection) Connect() *MongoDatabase {
 	connectionString := db.connectionString
 	lastSlashIndex := strings.LastIndex(connectionString, "/")
 	if lastSlashIndex == -1 || lastSlashIndex == len(connectionString)-1 {
-		errorhandler.ErrorHandler(fmt.Errorf("invalid connection string"), errorhandler.TErrorData{"errType": "Fatal"})
+		errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "invalid connection string", Err: fmt.Errorf("invalid connection string"), ErrType: "Fatal"})
 	}
 
 	dbName := connectionString[lastSlashIndex+1:]
 
 	client, err := mongo.NewClient(options.Client().ApplyURI(connectionString))
 	if err != nil {
-		errorhandler.ErrorHandler(err, errorhandler.TErrorData{"errType": "Fatal", "msg": "Error while trying to connect to mongodb"})
+		errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "Error while trying to connect to mongodb", Err: fmt.Errorf("invalid connection string"), ErrType: "Fatal"})
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	err = client.Connect(ctx)
-	if err != nil {
-		errorhandler.ErrorHandler(err, errorhandler.TErrorData{"errType": "Fatal", "msg": "Error while trying to connect to mongodb"})
-	}
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "Error while trying to connect to mongodb", Err: err, ErrType: "Fatal"})
 
 	database := client.Database(dbName)
 
@@ -58,7 +56,5 @@ func (db MongoDatabase) Disconnect() {
 	defer cancel()
 
 	err := db.Client.Disconnect(ctx)
-	if err != nil {
-		logging.Info((logging.LoggerInput{Message: fmt.Sprintf("Error disconnecting from MongoDB: %v", err)}))
-	}
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "", Err: err})
 }

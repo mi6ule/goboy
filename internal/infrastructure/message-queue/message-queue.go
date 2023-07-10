@@ -53,7 +53,7 @@ func NewAsynqMQ(redisAddr string) *AsynqMQ {
 	}
 	go func() {
 		err := mq.Scheduler.Run()
-		errorhandler.CheckForError("Could not run schedulers: %v", err, errorhandler.TErrorData{})
+		errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "Could not run asynq scheduler", Err: err, ErrType: "Fatal"})
 	}()
 	return mq
 }
@@ -81,15 +81,16 @@ func ProcessQueues(redisAddr string) {
 	mux.Handle(task.ImageResizeTask, queuehandler.NewImageProcessor())
 
 	err := srv.Run(mux)
-	errorhandler.CheckForError("Could not init mux server: %v", err, errorhandler.TErrorData{})
+
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "Could not init mux server", Err: err, ErrType: "Fatal"})
 }
 
 func TestMessageQueue(redisAddr string) *AsynqMQ {
 	mq := NewAsynqMQ(redisAddr)
 	t, err := task.NewEmailDeliveryTask(42, "some-template-id")
-	errorhandler.CheckForError("Could not enqueue email: %v", err, errorhandler.TErrorData{})
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "Could not enqueue email", Err: err})
 	_, err = mq.Enqueue(t, queueconst.FirstEmailQueue, asynq.Retention(2*time.Minute))
-	errorhandler.CheckForError("Could not enqueue image resize: %v", err, errorhandler.TErrorData{})
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "Could not enqueue image resize", Err: err})
 	emailPayload, _ := json.Marshal(task.EmailDeliveryPayload{UserID: 1, TemplateID: "interval-temp"})
 	mq.Scheduler.Register("@every 2s", asynq.NewTask(task.EmailDeliveryTask, emailPayload, asynq.Queue(queueconst.FirstEmailQueue)))
 	mq.PushToOtherQueue(queueconst.SecondEmailQueue, queueconst.FirstEmailQueue)

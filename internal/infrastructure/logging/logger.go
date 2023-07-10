@@ -2,13 +2,12 @@ package logging
 
 import (
 	"os"
-	"runtime"
-	"strconv"
 	"time"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
+	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/util"
 )
 
 var AppLogger = LoggerGenerator(nil)
@@ -31,15 +30,11 @@ type LoggerInput struct {
 	Message string
 	Data    map[string]any //optional
 	Err     error          //optional
-}
-
-func getAppLoggerPath() string {
-	_, file, line, _ := runtime.Caller(2)
-	return file + ":" + strconv.Itoa(line)
+	Path    string         //optional
 }
 
 func Info(inp LoggerInput) {
-	path := getAppLoggerPath()
+	path := util.GetInvokedPath(inp.Path)
 	log := AppLogger.Info().Str("caller", path)
 	if inp.Data != nil {
 		log.Interface("data", inp.Data)
@@ -48,7 +43,7 @@ func Info(inp LoggerInput) {
 }
 
 func Warn(inp LoggerInput) {
-	path := getAppLoggerPath()
+	path := util.GetInvokedPath(inp.Path)
 	log := AppLogger.Warn().Str("caller", path)
 	if inp.Data != nil {
 		log.Interface("data", inp.Data)
@@ -57,7 +52,7 @@ func Warn(inp LoggerInput) {
 }
 
 func Error(inp LoggerInput) {
-	path := getAppLoggerPath()
+	path := util.GetInvokedPath(inp.Path)
 	log := AppLogger.Error().Str("caller", path)
 	if inp.Data != nil {
 		log.Interface("data", inp.Data)
@@ -69,7 +64,7 @@ func Error(inp LoggerInput) {
 }
 
 func Debug(inp LoggerInput) {
-	path := getAppLoggerPath()
+	path := util.GetInvokedPath(inp.Path)
 	log := AppLogger.Debug().Str("caller", path)
 	if inp.Data != nil {
 		log.Interface("data", inp.Data)
@@ -78,7 +73,7 @@ func Debug(inp LoggerInput) {
 }
 
 func Fatal(inp LoggerInput) {
-	path := getAppLoggerPath()
+	path := util.GetInvokedPath(inp.Path)
 	log := AppLogger.Fatal().Str("caller", path)
 	if inp.Data != nil {
 		log.Interface("data", inp.Data)

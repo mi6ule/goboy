@@ -19,35 +19,29 @@ import (
 var DbConnection *sql.DB
 
 func main() {
-	config.LoadEnv()
+	err := config.LoadEnv()
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "could not import env variables", Err: err})
 	configData := config.ProvideConfig()
 	db, _ := persistence.NewSqlDatabaseConn("postgres", configData.PostgresDb)
 	defer db.Close()
 	// TestUserRepo(db)
 
-	if err := migration.RunMigration(db); err != nil {
-		errorhandler.ErrorHandler(err, errorhandler.TErrorData{"errType": "Fatal", "msg": "failed to run migrations"})
-	}
+	err = migration.RunMigration(db)
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "failed to run migrations", Err: err, ErrType: "Fatal"})
 
 	logging.Info((logging.LoggerInput{Message: "Migrations completed successfully"}))
 	mongoClient, err := persistence.NoSQLConnection("mongodb", configData.MongoDb)
-	if err != nil {
-		errorhandler.ErrorHandler(err, errorhandler.TErrorData{"errType": "Fatal", "msg": "failed to connect to mongoDb"})
-	}
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "failed to connect to mongoDb", Err: err, ErrType: "Fatal"})
 
 	redisClient, err := persistence.NewRedisClient(configData.Redis)
-	if err != nil {
-		errorhandler.ErrorHandler(err, errorhandler.TErrorData{"errType": "Fatal", "msg": "failed to connect to redis"})
-	}
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "failed to connect to redis", Err: err, ErrType: "Fatal"})
 
 	// Redis repository initialization
 	redisRepo := cacheRepository.NewRedisRepository(redisClient)
 
 	redisRepo.Set("hello", "hello world!")
 	redisResponse, err := redisRepo.Get("hello")
-	if err != nil {
-		errorhandler.ErrorHandler(err, errorhandler.TErrorData{})
-	}
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "", Err: err})
 	logging.Info((logging.LoggerInput{Message: "", Data: map[string]any{"redisResponse": redisResponse}}))
 	// messagequeue.TestMessageQueue(configData.Redis.Host)
 	TestClientRepo(mongoClient, redisClient)
@@ -78,18 +72,14 @@ func TestClientRepo(db *persistence.MongoDatabase, redisClient *persistence.Redi
 	wg.Add(1)
 
 	err := clientRepository.Create(client)
-	if err != nil {
-		errorhandler.ErrorHandler(err, errorhandler.TErrorData{"errType": "Fatal"})
-	}
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "", Err: err, ErrType: "Fatal"})
 
 	// Use goroutine for the GetByID operation
 	go func() {
 		defer wg.Done()
 
 		findClient, err := clientRepository.GetByID(123456789)
-		if err != nil {
-			errorhandler.ErrorHandler(err, errorhandler.TErrorData{"errType": "Fatal"})
-		}
+		errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "", Err: err, ErrType: "Fatal"})
 
 		findClientChan <- findClient // Send the findClient value through the channel
 	}()
