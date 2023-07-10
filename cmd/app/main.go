@@ -13,8 +13,6 @@ import (
 	errorhandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/error-handler"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
 
-	messagequeue "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/message-queue"
-
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/persistence"
 )
 
@@ -51,7 +49,7 @@ func main() {
 		errorhandler.ErrorHandler(err, errorhandler.TErrorData{})
 	}
 	logging.Info((logging.LoggerInput{Message: "", Data: map[string]any{"redisResponse": redisResponse}}))
-	messagequeue.TestMessageQueue(configData.Redis.Host)
+	// messagequeue.TestMessageQueue(configData.Redis.Host)
 	TestClientRepo(mongoClient, redisClient)
 }
 

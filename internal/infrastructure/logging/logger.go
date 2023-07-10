@@ -2,6 +2,8 @@ package logging
 
 import (
 	"os"
+	"runtime"
+	"strconv"
 	"time"
 
 	"github.com/rs/zerolog"
@@ -20,9 +22,7 @@ func LoggerGenerator(mode *string) *zerolog.Logger {
 	zerolog.TimeFieldFormat = time.RFC3339
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	if *mode == "development" {
-		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout}).With().Caller().Logger()
-	} else {
-		log.Logger = log.With().CallerWithSkipFrameCount(2).Logger()
+		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
 	}
 	return &log.Logger
 }
@@ -33,8 +33,14 @@ type LoggerInput struct {
 	Err     error          //optional
 }
 
+func getAppLoggerPath() string {
+	_, file, line, _ := runtime.Caller(2)
+	return file + ":" + strconv.Itoa(line)
+}
+
 func Info(inp LoggerInput) {
-	log := AppLogger.Info()
+	path := getAppLoggerPath()
+	log := AppLogger.Info().Str("caller", path)
 	if inp.Data != nil {
 		log.Interface("data", inp.Data)
 	}
@@ -42,7 +48,8 @@ func Info(inp LoggerInput) {
 }
 
 func Warn(inp LoggerInput) {
-	log := AppLogger.Warn()
+	path := getAppLoggerPath()
+	log := AppLogger.Warn().Str("caller", path)
 	if inp.Data != nil {
 		log.Interface("data", inp.Data)
 	}
@@ -50,7 +57,8 @@ func Warn(inp LoggerInput) {
 }
 
 func Error(inp LoggerInput) {
-	log := AppLogger.Error()
+	path := getAppLoggerPath()
+	log := AppLogger.Error().Str("caller", path)
 	if inp.Data != nil {
 		log.Interface("data", inp.Data)
 	}
@@ -61,7 +69,8 @@ func Error(inp LoggerInput) {
 }
 
 func Debug(inp LoggerInput) {
-	log := AppLogger.Debug()
+	path := getAppLoggerPath()
+	log := AppLogger.Debug().Str("caller", path)
 	if inp.Data != nil {
 		log.Interface("data", inp.Data)
 	}
@@ -69,7 +78,8 @@ func Debug(inp LoggerInput) {
 }
 
 func Fatal(inp LoggerInput) {
-	log := AppLogger.Fatal()
+	path := getAppLoggerPath()
+	log := AppLogger.Fatal().Str("caller", path)
 	if inp.Data != nil {
 		log.Interface("data", inp.Data)
 	}
