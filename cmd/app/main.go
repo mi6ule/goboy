@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
+	constants "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/constant"
 	migration "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/migration/handler"
 	query_model "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/model/query"
 	cacheRepository "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/repository/cache"
@@ -20,29 +21,30 @@ var DbConnection *sql.DB
 
 func main() {
 	err := config.LoadEnv()
-	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "could not import env variables", Err: err})
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "could not import env variables", Err: err, Code: constants.ERROR_CODE_100001})
 	configData := config.ProvideConfig()
-	db, _ := persistence.NewSqlDatabaseConn("postgres", configData.PostgresDb)
-	defer db.Close()
+	db, err := persistence.NewSqlDatabaseConn("postgres", configData.PostgresDb)
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "could not connect to postgresql db", Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100017})
+	// defer db.Close()
 	// TestUserRepo(db)
 
 	err = migration.RunMigration(db)
-	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "failed to run migrations", Err: err, ErrType: "Fatal"})
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "failed to run migrations", Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100002})
 
 	logging.Info((logging.LoggerInput{Message: "Migrations completed successfully"}))
 	mongoClient, err := persistence.NoSQLConnection("mongodb", configData.MongoDb)
-	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "failed to connect to mongoDb", Err: err, ErrType: "Fatal"})
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "failed to connect to mongoDb", Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100003})
 
 	redisClient, err := persistence.NewRedisClient(configData.Redis)
-	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "failed to connect to redis", Err: err, ErrType: "Fatal"})
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "failed to connect to redis", Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100004})
 
 	// Redis repository initialization
 	redisRepo := cacheRepository.NewRedisRepository(redisClient)
 
 	redisRepo.Set("hello", "hello world!")
 	redisResponse, err := redisRepo.Get("hello")
-	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "", Err: err})
-	logging.Info((logging.LoggerInput{Message: "", Data: map[string]any{"redisResponse": redisResponse}}))
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Code: constants.ERROR_CODE_100005})
+	logging.Info((logging.LoggerInput{Data: map[string]any{"redisResponse": redisResponse}}))
 	// messagequeue.TestMessageQueue(configData.Redis.Host)
 	TestClientRepo(mongoClient, redisClient)
 }
@@ -72,14 +74,14 @@ func TestClientRepo(db *persistence.MongoDatabase, redisClient *persistence.Redi
 	wg.Add(1)
 
 	err := clientRepository.Create(client)
-	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "", Err: err, ErrType: "Fatal"})
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100006})
 
 	// Use goroutine for the GetByID operation
 	go func() {
 		defer wg.Done()
 
 		findClient, err := clientRepository.GetByID(123456789)
-		errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "", Err: err, ErrType: "Fatal"})
+		errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100007})
 
 		findClientChan <- findClient // Send the findClient value through the channel
 	}()
@@ -104,7 +106,7 @@ func TestClientRepo(db *persistence.MongoDatabase, redisClient *persistence.Redi
 		// Handle the case where findClient is nil
 		logging.Info(logging.LoggerInput{Message: "client not found"})
 	}
-	logging.Info((logging.LoggerInput{Message: fmt.Sprintf("Found clien's age is: %v", findClient.Age)}))
+	logging.Info((logging.LoggerInput{Message: fmt.Sprintf("Found client's age is: %v", findClient.Age)}))
 }
 
 func TestUserRepo(db *persistence.Database) {

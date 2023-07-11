@@ -54,7 +54,7 @@ func (r *MongoDBClientRepository) GetByID(id int) (*query_model.Client, error) {
 		var client query_model.Client
 		err := json.Unmarshal([]byte(isInCache), &client)
 		if err != nil {
-			logging.Error(logging.LoggerInput{Message: "", Err: err})
+			logging.Error(logging.LoggerInput{Err: err})
 			return nil, err
 		}
 
