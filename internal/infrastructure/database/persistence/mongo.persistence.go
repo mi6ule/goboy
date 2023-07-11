@@ -57,5 +57,5 @@ func (db MongoDatabase) Disconnect() {
 	defer cancel()
 
 	err := db.Client.Disconnect(ctx)
-	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "", Err: err, Code: constants.ERROR_CODE_100011})
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Code: constants.ERROR_CODE_100011})
 }

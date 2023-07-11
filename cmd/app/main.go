@@ -43,8 +43,8 @@ func main() {
 
 	redisRepo.Set("hello", "hello world!")
 	redisResponse, err := redisRepo.Get("hello")
-	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "", Err: err, Code: constants.ERROR_CODE_100005})
-	logging.Info((logging.LoggerInput{Message: "", Data: map[string]any{"redisResponse": redisResponse}}))
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Code: constants.ERROR_CODE_100005})
+	logging.Info((logging.LoggerInput{Data: map[string]any{"redisResponse": redisResponse}}))
 	// messagequeue.TestMessageQueue(configData.Redis.Host)
 	TestClientRepo(mongoClient, redisClient)
 }
@@ -74,14 +74,14 @@ func TestClientRepo(db *persistence.MongoDatabase, redisClient *persistence.Redi
 	wg.Add(1)
 
 	err := clientRepository.Create(client)
-	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "", Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100006})
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100006})
 
 	// Use goroutine for the GetByID operation
 	go func() {
 		defer wg.Done()
 
 		findClient, err := clientRepository.GetByID(123456789)
-		errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "", Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100007})
+		errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100007})
 
 		findClientChan <- findClient // Send the findClient value through the channel
 	}()

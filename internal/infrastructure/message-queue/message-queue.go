@@ -97,7 +97,7 @@ func TestMessageQueue(redisAddr string) *AsynqMQ {
 	mq.PushToOtherQueue(queueconst.SecondEmailQueue, queueconst.FirstEmailQueue)
 
 	firstEmailQueueInfo, _ := mq.Inspector.GetQueueInfo(queueconst.FirstEmailQueue)
-	logging.Info(logging.LoggerInput{Message: "", Data: map[string]any{"firstEmailQueueInfo": firstEmailQueueInfo}})
+	logging.Info(logging.LoggerInput{Data: map[string]any{"firstEmailQueueInfo": firstEmailQueueInfo}})
 
 	ProcessQueues(redisAddr)
 	return mq

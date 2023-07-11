@@ -88,7 +88,7 @@ func (db *Database) Exec(query string, args ...interface{}) (sql.Result, error) 
 }
 
 func (db *Database) QueryRow(query string, args ...interface{}) *sql.Row {
-	logging.Info(logging.LoggerInput{Message: "", Data: map[string]any{"query": query, "args": args}})
+	logging.Info(logging.LoggerInput{Data: map[string]any{"query": query, "args": args}})
 	return db.db.QueryRow(query, args...)
 }
 
@@ -102,7 +102,7 @@ func ExamplePostgres() {
 	query := "SELECT * FROM customer"
 	result, err := db.ExecuteQuery(query)
 	if err != nil {
-		errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "", Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100012})
+		errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100012})
 	}
 
 	// Process the query result

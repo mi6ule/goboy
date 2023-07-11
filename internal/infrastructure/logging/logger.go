@@ -27,7 +27,7 @@ func LoggerGenerator(mode *string) *zerolog.Logger {
 }
 
 type LoggerInput struct {
-	Message string
+	Message string         //optional
 	Code    string         //optional
 	Data    map[string]any //optional
 	Err     error          //optional
