@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -35,6 +36,23 @@ func (u *UserRestHandler) getUsersHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, users)
 }
 
+type UserInput struct {
+	Name  string `json:"name" binding:"required,min=3,max=50"`
+	Email string `json:"email" binding:"required,email"`
+	// Add other fields as needed for user creation
+}
+
 func (u *UserRestHandler) createUserHandler(c *gin.Context) {
+	var userInput UserInput
+
+	// Bind the JSON request body to the UserInput struct
+	if err := c.ShouldBindJSON(&userInput); err != nil {
+		// Return a bad request response if validation fails
+		c.Error(fmt.Errorf(err.Error()))
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	// Handler logic for creating a user
+	c.Status(http.StatusOK)
 }
