@@ -2,44 +2,15 @@ package rest
 
 import (
 	"bytes"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
 )
 
-func RequestLoggerMiddleware(param gin.LogFormatterParams) string {
-	if param.ErrorMessage == "" {
-		logging.Info(logging.LoggerInput{
-			Data: map[string]any{
-				"ClientIP":   param.ClientIP,
-				"Method":     param.Method,
-				"Path":       param.Path,
-				"StatusCode": param.StatusCode,
-				"Latency":    param.Latency,
-				"Body":       param.Request.Body,
-				"Header":     param.Request.Header,
-			},
-		})
-	} else {
-		logging.Error(logging.LoggerInput{
-			Data: map[string]any{
-				"ClientIP":     param.ClientIP,
-				"Method":       param.Method,
-				"Path":         param.Path,
-				"StatusCode":   param.StatusCode,
-				"Latency":      param.Latency,
-				"ErrorMessage": param.ErrorMessage,
-				"Body":         param.Request.Body,
-				"Header":       param.Request.Header,
-			},
-		})
-	}
-	return ""
-}
-
-// LogResponseMiddleware is a custom middleware to log the response body
-func LogResponseMiddleware() gin.HandlerFunc {
+func RestLogMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		startTime := time.Now()
 		// Create a custom response writer to capture the response
 		buf := new(bytes.Buffer)
 		writer := &customResponseWriter{body: buf, ResponseWriter: c.Writer}
@@ -53,15 +24,35 @@ func LogResponseMiddleware() gin.HandlerFunc {
 		// Get the captured response body from the buffer
 		responseBody := buf.String()
 
-		// Log the response body
-		logging.Info(logging.LoggerInput{
-			Data: map[string]any{
-				"Method":       c.Request.Method,
-				"Path":         c.Request.URL.Path,
-				"StatusCode":   c.Writer.Status(),
-				"ResponseBody": responseBody,
-			},
-		})
+		if len(c.Errors) > 0 {
+			logging.Error(logging.LoggerInput{
+				Data: map[string]any{
+					"Method":       c.Request.Method,
+					"Path":         c.Request.URL.Path,
+					"StatusCode":   c.Writer.Status(),
+					"ResponseBody": responseBody,
+					"ClientIP":     c.ClientIP(),
+					"ErrorMessage": c.Errors.String(),
+					"Body":         c.Request.Body,
+					"Header":       c.Request.Header,
+					"Latency":      time.Since(startTime).String(),
+				},
+			})
+		} else {
+			logging.Info(logging.LoggerInput{
+				Data: map[string]any{
+					"Method":       c.Request.Method,
+					"Path":         c.Request.URL.Path,
+					"StatusCode":   c.Writer.Status(),
+					"ResponseBody": responseBody,
+					"ClientIP":     c.ClientIP(),
+					"ErrorMessage": c.Errors.String(),
+					"Body":         c.Request.Body,
+					"Header":       c.Request.Header,
+					"Latency":      time.Since(startTime).String(),
+				},
+			})
+		}
 	}
 }
 

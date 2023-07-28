@@ -10,8 +10,7 @@ func SetupRouter(appEnv string) *gin.Engine {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	router := gin.New()
-	router.Use(gin.LoggerWithFormatter(RequestLoggerMiddleware))
-	router.Use(LogResponseMiddleware())
+	router.Use(RestLogMiddleware())
 	router.Use(gin.Recovery())
 	return router
 }
