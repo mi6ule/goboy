@@ -17,13 +17,17 @@ type DatabaseConfig struct {
 	Options          string
 }
 
-type ServerConfig struct {
+type AppConfig struct {
 	AppEnv string
-	Port   string
+}
+
+type RestConfig struct {
+	Port string
 }
 
 type Config struct {
-	Server     ServerConfig
+	App        AppConfig
+	Rest       RestConfig
 	PostgresDb DatabaseConfig
 	MongoDb    DatabaseConfig
 	Redis      DatabaseConfig
@@ -39,9 +43,11 @@ func GetEnv(key string) string {
 
 func ProvideConfig() Config {
 	return Config{
-		Server: ServerConfig{
+		App: AppConfig{
 			AppEnv: os.Getenv("APP_ENV"),
-			Port:   os.Getenv("PORT"),
+		},
+		Rest: RestConfig{
+			Port: os.Getenv("PORT"),
 		},
 		PostgresDb: DatabaseConfig{
 			ConnectionString: os.Getenv("PG_DB_CONNECTION"),

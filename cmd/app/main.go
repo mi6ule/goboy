@@ -13,6 +13,7 @@ import (
 	readRepository "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/repository/query"
 	errorhandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/error-handler"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
+	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/rest"
 
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/persistence"
 )
@@ -47,6 +48,9 @@ func main() {
 	logging.Info((logging.LoggerInput{Data: map[string]any{"redisResponse": redisResponse}}))
 	// messagequeue.TestMessageQueue(configData.Redis.Host)
 	TestClientRepo(mongoClient, redisClient)
+	router := rest.SetupRouter(configData.App.AppEnv)
+	err = router.Run(fmt.Sprintf(":%s", configData.Rest.Port))
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err})
 }
 
 func TestClientRepo(db *persistence.MongoDatabase, redisClient *persistence.RedisClient) {
