@@ -24,6 +24,8 @@ func (u *UserRestHandler) SetupRoutes() {
 	usersRouter := u.router.Group("/user")
 	usersRouter.GET("/", u.getUsersHandler)
 	usersRouter.POST("/", u.createUserHandler)
+	usersAdminRouter := u.router.Group("/user/admin")
+	usersAdminRouter.PATCH("/:id", u.deactivateUserHandler)
 	// Add more user-related routes here
 }
 
@@ -54,5 +56,11 @@ func (u *UserRestHandler) createUserHandler(c *gin.Context) {
 	}
 
 	// Handler logic for creating a user
-	c.Status(http.StatusOK)
+	c.Status(http.StatusCreated)
+}
+
+func (u *UserRestHandler) deactivateUserHandler(c *gin.Context) {
+	userId := c.Param("id")
+	// deactivate user
+	c.JSON(http.StatusOK, gin.H{"id": userId})
 }
