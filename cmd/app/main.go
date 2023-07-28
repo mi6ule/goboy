@@ -49,6 +49,8 @@ func main() {
 	// messagequeue.TestMessageQueue(configData.Redis.Host)
 	TestClientRepo(mongoClient, redisClient)
 	router := rest.SetupRouter(configData.App.AppEnv)
+	userHandler := rest.NewUserRestHandler(router)
+	userHandler.SetupRoutes()
 	err = router.Run(fmt.Sprintf(":%s", configData.Rest.Port))
 	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Code: constants.ERROR_CODE_100018})
 }

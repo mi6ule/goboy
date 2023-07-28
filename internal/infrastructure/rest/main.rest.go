@@ -22,6 +22,7 @@ func SetupRouter(appEnv string) *gin.Engine {
 				"ErrorMessage": param.ErrorMessage,
 				"Body":         param.Request.Body,
 				"Header":       param.Request.Header,
+				"Response":     param.Request.Response,
 			},
 		})
 		return ""
