@@ -24,7 +24,7 @@ func (u *UserRestHandler) SetupRoutes() {
 	usersRouter := u.router.Group("/user")
 	usersRouter.GET("/", u.getUsersHandler)
 	usersRouter.POST("/", u.createUserHandler)
-	usersAdminRouter := u.router.Group("/user/admin")
+	usersAdminRouter := usersRouter.Group("/admin")
 	usersAdminRouter.PATCH("/:id", u.deactivateUserHandler)
 	// Add more user-related routes here
 }
