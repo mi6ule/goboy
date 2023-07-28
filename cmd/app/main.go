@@ -50,7 +50,7 @@ func main() {
 	TestClientRepo(mongoClient, redisClient)
 	router := rest.SetupRouter(configData.App.AppEnv)
 	err = router.Run(fmt.Sprintf(":%s", configData.Rest.Port))
-	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err})
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Code: constants.ERROR_CODE_100018})
 }
 
 func TestClientRepo(db *persistence.MongoDatabase, redisClient *persistence.RedisClient) {
