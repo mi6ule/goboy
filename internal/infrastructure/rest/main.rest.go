@@ -10,6 +10,7 @@ func SetupRouter(appEnv string) *gin.Engine {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	router := gin.New()
+	router.SetTrustedProxies([]string{"*"})
 	router.Use(RestLogMiddleware())
 	router.Use(gin.Recovery())
 	return router

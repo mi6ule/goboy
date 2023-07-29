@@ -2,6 +2,8 @@ package rest
 
 import (
 	"bytes"
+	"encoding/json"
+	"io"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -11,61 +13,56 @@ import (
 func RestLogMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		startTime := time.Now()
-		// Create a custom response writer to capture the response
+		var reqBody []byte
+		if c.Request.Body != nil {
+			reqBody, _ = io.ReadAll(c.Request.Body)
+		}
+		c.Request.Body = io.NopCloser(bytes.NewBuffer(reqBody))
+
 		buf := new(bytes.Buffer)
 		writer := &customResponseWriter{body: buf, ResponseWriter: c.Writer}
-
-		// Replace the original response writer with the custom writer
 		c.Writer = writer
-
-		// Proceed with the next middleware or handler
 		c.Next()
-
-		// Get the captured response body from the buffer
 		responseBody := buf.String()
+		var reqBodyJSON map[string]any
+		var resBodyJSON map[string]any
+		logData := map[string]any{
+			"Method":        c.Request.Method,
+			"Path":          c.Request.URL.Path,
+			"StatusCode":    c.Writer.Status(),
+			"ClientIP":      c.ClientIP(),
+			"ErrorMessage":  c.Errors.String(),
+			"RequestHeader": c.Request.Header,
+			"Latency":       time.Since(startTime).String(),
+			"ResponseBody":  responseBody,
+			"RequestBody":   string(reqBody),
+		}
+		if err := json.Unmarshal(reqBody, &reqBodyJSON); err == nil {
+			logData["RequestBody"] = reqBodyJSON
+		}
 
+		if err := json.Unmarshal(buf.Bytes(), &resBodyJSON); err == nil {
+			logData["RequestBody"] = resBodyJSON
+		}
 		if len(c.Errors) > 0 {
+			logData["ErrorMessage"] = c.Errors.String()
 			logging.Error(logging.LoggerInput{
-				Data: map[string]any{
-					"Method":       c.Request.Method,
-					"Path":         c.Request.URL.Path,
-					"StatusCode":   c.Writer.Status(),
-					"ResponseBody": responseBody,
-					"ClientIP":     c.ClientIP(),
-					"ErrorMessage": c.Errors.String(),
-					"Body":         c.Request.Body,
-					"Header":       c.Request.Header,
-					"Latency":      time.Since(startTime).String(),
-				},
+				Data: logData,
 			})
 		} else {
 			logging.Info(logging.LoggerInput{
-				Data: map[string]any{
-					"Method":       c.Request.Method,
-					"Path":         c.Request.URL.Path,
-					"StatusCode":   c.Writer.Status(),
-					"ResponseBody": responseBody,
-					"ClientIP":     c.ClientIP(),
-					"ErrorMessage": c.Errors.String(),
-					"Body":         c.Request.Body,
-					"Header":       c.Request.Header,
-					"Latency":      time.Since(startTime).String(),
-				},
+				Data: logData,
 			})
 		}
 	}
 }
 
-// customResponseWriter is a custom wrapper for gin.ResponseWriter
 type customResponseWriter struct {
 	gin.ResponseWriter
 	body *bytes.Buffer
 }
 
-// Write overrides the Write method to capture the response body
 func (w *customResponseWriter) Write(b []byte) (int, error) {
-	// Write the response to the buffer
 	w.body.Write(b)
-	// Write the response to the original ResponseWriter
 	return w.ResponseWriter.Write(b)
 }
