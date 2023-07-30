@@ -7,6 +7,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
+	constants "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/constant"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/util"
 )
 
@@ -16,11 +17,11 @@ func LoggerGenerator(mode *string) *zerolog.Logger {
 	if mode == nil {
 		config.LoadEnv()
 		envVars := config.ProvideConfig()
-		mode = &envVars.Server.AppEnv
+		mode = &envVars.App.AppEnv
 	}
 	zerolog.TimeFieldFormat = time.RFC3339
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
-	if *mode == "development" {
+	if *mode == constants.DEVELOP {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
 	}
 	return &log.Logger

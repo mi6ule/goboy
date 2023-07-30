@@ -13,6 +13,8 @@ import (
 	readRepository "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/repository/query"
 	errorhandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/error-handler"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
+	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/rest"
+	restrouter "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/rest/router"
 
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/persistence"
 )
@@ -47,6 +49,10 @@ func main() {
 	logging.Info((logging.LoggerInput{Data: map[string]any{"redisResponse": redisResponse}}))
 	// messagequeue.TestMessageQueue(configData.Redis.Host)
 	TestClientRepo(mongoClient, redisClient)
+	router := rest.SetupRouter(configData.App.AppEnv)
+	restrouter.NewUserRestHandler(router)
+	err = router.Run(fmt.Sprintf(":%s", configData.Rest.Port))
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Code: constants.ERROR_CODE_100018})
 }
 
 func TestClientRepo(db *persistence.MongoDatabase, redisClient *persistence.RedisClient) {
