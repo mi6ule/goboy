@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
 )
 
 type UserInput struct {
@@ -24,19 +23,18 @@ func GetUsersHandler(c *gin.Context) {
 }
 
 func CreateUserHandler(c *gin.Context) {
-	var userInput UserInput
+	var userInput []UserInput
 
 	// Bind the JSON request body to the UserInput struct
 	if err := c.ShouldBindJSON(&userInput); err != nil {
 		// Return a bad request response if validation fails
-		logging.Info(logging.LoggerInput{Message: "here"})
 		c.Error(fmt.Errorf(err.Error()))
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	// Handler logic for creating a user
-	c.Status(http.StatusCreated)
+	c.JSON(http.StatusCreated, gin.H{"Id": 123456789})
 }
 
 func DeactivateUserHandler(c *gin.Context) {

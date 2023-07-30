@@ -24,8 +24,8 @@ func RestLogMiddleware() gin.HandlerFunc {
 		c.Writer = writer
 		c.Next()
 		responseBody := buf.String()
-		var reqBodyJSON map[string]any
-		var resBodyJSON map[string]any
+		var reqBodyJSON any
+		var resBodyJSON any
 		logData := map[string]any{
 			"Method":        c.Request.Method,
 			"Path":          c.Request.URL.Path,
@@ -41,8 +41,8 @@ func RestLogMiddleware() gin.HandlerFunc {
 			logData["RequestBody"] = reqBodyJSON
 		}
 
-		if err := json.Unmarshal(buf.Bytes(), &resBodyJSON); err == nil {
-			logData["RequestBody"] = resBodyJSON
+		if err := json.Unmarshal([]byte(responseBody), &resBodyJSON); err == nil {
+			logData["ResponseBody"] = resBodyJSON
 		}
 		if len(c.Errors) > 0 {
 			logData["ErrorMessage"] = c.Errors.String()
