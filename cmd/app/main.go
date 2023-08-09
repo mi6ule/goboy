@@ -11,6 +11,7 @@ import (
 	query_model "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/model/query"
 	cacheRepository "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/repository/cache"
 	readRepository "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/repository/query"
+	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/elastic"
 	errorhandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/error-handler"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/rest"
@@ -47,6 +48,10 @@ func main() {
 	redisResponse, err := redisRepo.Get("hello")
 	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Code: constants.ERROR_CODE_100005})
 	logging.Info((logging.LoggerInput{Data: map[string]any{"redisResponse": redisResponse}}))
+
+	client, err := elastic.SetupElastic(configData.ElasticSearch)
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Message: "error creating elastic client", Code: constants.ERROR_CODE_100019})
+	elastic.TestElastic(client)
 	// messagequeue.TestMessageQueue(configData.Redis.Host)
 	TestClientRepo(mongoClient, redisClient)
 	router := rest.SetupRouter(configData.App.AppEnv)

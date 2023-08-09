@@ -25,12 +25,19 @@ type RestConfig struct {
 	Port string
 }
 
+type ElasticConfig struct {
+	Url      string
+	Username string
+	Pwd      string
+}
+
 type Config struct {
-	App        AppConfig
-	Rest       RestConfig
-	PostgresDb DatabaseConfig
-	MongoDb    DatabaseConfig
-	Redis      DatabaseConfig
+	App           AppConfig
+	Rest          RestConfig
+	PostgresDb    DatabaseConfig
+	MongoDb       DatabaseConfig
+	Redis         DatabaseConfig
+	ElasticSearch ElasticConfig
 }
 
 func LoadEnv() error {
@@ -71,6 +78,11 @@ func ProvideConfig() Config {
 			Host: os.Getenv("REDIS_HOST"),
 			Pwd:  os.Getenv("REDIS_PWD"),
 			Name: os.Getenv("REDIS_NAME"),
+		},
+		ElasticSearch: ElasticConfig{
+			Url:      os.Getenv("ELASTIC_URL"),
+			Username: os.Getenv("ELASTIC_USERNAME"),
+			Pwd:      os.Getenv("ELASTIC_PWD"),
 		},
 	}
 }
