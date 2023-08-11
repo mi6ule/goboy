@@ -1,6 +1,7 @@
 package elastic
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -71,6 +72,7 @@ func CreateIndex(client *elasticsearch.Client, name string) error {
 	return nil
 }
 
+// Search in elastic indicies
 func SearchIndex(client *elasticsearch.Client, indexName, query string) (*esapi.Response, error) {
 	request := esapi.SearchRequest{
 		Index:          []string{indexName},
@@ -84,6 +86,27 @@ func SearchIndex(client *elasticsearch.Client, indexName, query string) (*esapi.
 	defer response.Body.Close()
 	if response.IsError() {
 		return nil, fmt.Errorf("search failed: %s", response.String())
+	}
+	return response, nil
+}
+
+func UpdateDocument(client *elasticsearch.Client, indexName, documentID string, updateData map[string]any) (*esapi.Response, error) {
+	updateJSON, err := json.Marshal(updateData)
+	if err != nil {
+		return nil, err
+	}
+	request := esapi.UpdateRequest{
+		Index:      indexName,
+		DocumentID: documentID,
+		Body:       bytes.NewReader(updateJSON),
+	}
+	response, err := request.Do(context.Background(), client)
+	if err != nil {
+		return nil, err
+	}
+	defer response.Body.Close()
+	if response.IsError() {
+		return nil, fmt.Errorf("document update failed: %s", response.String())
 	}
 	return response, nil
 }
