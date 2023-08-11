@@ -131,3 +131,19 @@ func CreateIndexAlias(client *elasticsearch.Client, aliasName, indexName string)
 	}
 	return nil
 }
+
+func CreateIndexTemplate(client *elasticsearch.Client, templateName string, templateBody map[string]interface{}) error {
+	createTemplateRequest := esapi.IndicesPutTemplateRequest{
+		Name: templateName,
+		Body: esutil.NewJSONReader(templateBody),
+	}
+	response, err := createTemplateRequest.Do(context.Background(), client)
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
+	if response.IsError() {
+		return fmt.Errorf("failed to create index template: %s", response.String())
+	}
+	return nil
+}
