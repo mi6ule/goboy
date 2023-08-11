@@ -49,7 +49,7 @@ func main() {
 	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Code: constants.ERROR_CODE_100005})
 	logging.Info((logging.LoggerInput{Data: map[string]any{"redisResponse": redisResponse}}))
 
-	client, err := elastic.SetupElastic(configData.ElasticSearch)
+	client, err := elastic.NewElasticClient(configData.ElasticSearch)
 	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Message: "error creating elastic client", Code: constants.ERROR_CODE_100019})
 	elastic.TestElastic(client)
 	// messagequeue.TestMessageQueue(configData.Redis.Host)
