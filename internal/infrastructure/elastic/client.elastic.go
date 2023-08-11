@@ -1,15 +1,16 @@
 package elastic
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 
 	elasticsearch "github.com/elastic/go-elasticsearch/v8"
+	"github.com/elastic/go-elasticsearch/v8/esapi"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
 	constants "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/constant"
 	errorhandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/error-handler"
+	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
 )
 
 func SetupElastic(conf config.ElasticConfig) (*elasticsearch.Client, error) {
@@ -29,13 +30,13 @@ func SetupElastic(conf config.ElasticConfig) (*elasticsearch.Client, error) {
 	return client, nil
 }
 
-func SetupTypedElastic() (*elasticsearch.TypedClient, error) {
+func SetupTypedElastic(conf config.ElasticConfig) (*elasticsearch.TypedClient, error) {
 	cfg := elasticsearch.Config{
 		Addresses: []string{
-			"http://localhost:9200",
+			conf.Url,
 		},
-		Username:          "elastic",
-		Password:          "123456",
+		Username:          conf.Username,
+		Password:          conf.Pwd,
 		EnableDebugLogger: true,
 	}
 
@@ -46,55 +47,62 @@ func SetupTypedElastic() (*elasticsearch.TypedClient, error) {
 	return client, nil
 }
 
-func TestElastic(client *elasticsearch.Client) {
-	_, err := client.Ping()
-	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err})
-	// res, err := client.Indices.Create(constants.LOGS_ELASTIC_INDEX)
-	// errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err})
-	// if res.IsError() {
-	// 	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: fmt.Errorf("could not create elastic index"), Message: res.String()})
-	// 	fmt.Println(res)
-	// } else {
-	// 	fmt.Println(res)
-	S(client)
-	// }
+func CreateIndex(client *elasticsearch.Client, name string) error {
+	exists, err := client.Indices.Exists([]string{name})
+	if err != nil {
+		return err
+	}
+	if exists.StatusCode == 404 {
+		createIndexResponse, err := client.Indices.Create(name)
+		if err != nil {
+			return err
+		}
+		defer createIndexResponse.Body.Close()
+		if createIndexResponse.IsError() {
+			return fmt.Errorf("failed to create index: %s", createIndexResponse.String())
+		}
+		logging.Info(logging.LoggerInput{Message: fmt.Sprintf("Index created: %s", name)})
+	} else if exists.IsError() {
+		return fmt.Errorf("failed to check index existence: %s", exists.String())
+	} else {
+		logging.Info(logging.LoggerInput{Message: fmt.Sprintf("Index already exists: %s", name)})
+	}
+
+	return nil
 }
 
-func S(clinet *elasticsearch.Client) {
-	// Prepare the search request
-	var buf bytes.Buffer
-	query := map[string]any{
-		"query": map[string]any{
-			"match": map[string]any{
-				"title": "example",
-			},
-		},
+func SearchIndex(client *elasticsearch.Client, indexName, query string) (*esapi.Response, error) {
+	request := esapi.SearchRequest{
+		Index:          []string{indexName},
+		Query:          query,
+		TrackTotalHits: true,
 	}
-	if err := json.NewEncoder(&buf).Encode(query); err != nil {
-		errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "Error encoding the query", Err: err})
-	}
-
-	// Perform the search requestd
-	res, err := clinet.Search(
-		clinet.Search.WithContext(context.Background()),
-		clinet.Search.WithIndex(constants.LOGS_ELASTIC_INDEX),
-		clinet.Search.WithBody(&buf),
-		clinet.Search.WithTrackTotalHits(true),
-	)
+	response, err := request.Do(context.Background(), client)
 	if err != nil {
-		errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "Error performing the search", Err: err})
+		return nil, err
 	}
-	defer res.Body.Close()
-
-	// Handle the response
-	if res.IsError() {
-		errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "Elasticsearch error", Err: fmt.Errorf(res.Status())})
+	defer response.Body.Close()
+	if response.IsError() {
+		return nil, fmt.Errorf("search failed: %s", response.String())
 	}
+	return response, nil
+}
 
-	// Print the search results
+func TestElastic(client *elasticsearch.Client) {
+	// Check if we are connected to the client
+	_, err := client.Ping()
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err})
+
+	// Create the logs index if it does not already exist
+	err = CreateIndex(client, constants.LOGS_ELASTIC_INDEX)
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err})
+
+	// Perform a search on logs index
+	query := "{\"query\":{\"match\":{\"title\": \"example\"}}}"
+	res, err := SearchIndex(client, constants.LOGS_ELASTIC_INDEX, query)
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "Error performing the search", Err: err})
 	var result map[string]any
-	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
-		errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "Error parsing the response", Err: err})
-	}
-	fmt.Printf("Search results: %v\n", result)
+	err = json.NewDecoder(res.Body).Decode(&result)
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "Error parsing the response", Err: err})
+	logging.Info(logging.LoggerInput{Message: fmt.Sprintf("Search results: %v\n", result)})
 }
