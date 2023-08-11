@@ -82,3 +82,22 @@ func PaginatedSearch(client *elasticsearch.Client, indexName, field, query strin
 	}
 	return searchRequest.Do(context.Background(), client)
 }
+
+func HighlightedSearch(client *elasticsearch.Client, indexName, field, query string) (*esapi.Response, error) {
+	searchRequest := esapi.SearchRequest{
+		Index: []string{indexName},
+		Body: esutil.NewJSONReader(map[string]interface{}{
+			"query": map[string]interface{}{
+				"match": map[string]interface{}{
+					field: query,
+				},
+			},
+			"highlight": map[string]interface{}{
+				"fields": map[string]interface{}{
+					field: map[string]interface{}{},
+				},
+			},
+		}),
+	}
+	return searchRequest.Do(context.Background(), client)
+}
