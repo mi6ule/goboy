@@ -90,6 +90,27 @@ func SearchIndex(client *elasticsearch.Client, indexName, query string) (*esapi.
 	return response, nil
 }
 
+func CreateDocument(client *elasticsearch.Client, indexName, documentID string, createData map[string]any) (*esapi.Response, error) {
+	createJSON, err := json.Marshal(createData)
+	if err != nil {
+		return nil, err
+	}
+	request := esapi.CreateRequest{
+		Index:      indexName,
+		DocumentID: documentID,
+		Body:       bytes.NewReader(createJSON),
+	}
+	response, err := request.Do(context.Background(), client)
+	if err != nil {
+		return nil, err
+	}
+	defer response.Body.Close()
+	if response.IsError() {
+		return nil, fmt.Errorf("document create failed: %s", response.String())
+	}
+	return response, nil
+}
+
 func UpdateDocument(client *elasticsearch.Client, indexName, documentID string, updateData map[string]any) (*esapi.Response, error) {
 	updateJSON, err := json.Marshal(updateData)
 	if err != nil {
@@ -111,7 +132,7 @@ func UpdateDocument(client *elasticsearch.Client, indexName, documentID string, 
 	return response, nil
 }
 
-func DeleteDocument(client *elasticsearch.Client, indexName, documentID string, updateData map[string]any) (*esapi.Response, error) {
+func DeleteDocument(client *elasticsearch.Client, indexName, documentID string) (*esapi.Response, error) {
 	request := esapi.DeleteRequest{
 		Index:      indexName,
 		DocumentID: documentID,
@@ -122,7 +143,7 @@ func DeleteDocument(client *elasticsearch.Client, indexName, documentID string, 
 	}
 	defer response.Body.Close()
 	if response.IsError() {
-		return nil, fmt.Errorf("document update failed: %s", response.String())
+		return nil, fmt.Errorf("document delete failed: %s", response.String())
 	}
 	return response, nil
 }
