@@ -166,6 +166,23 @@ func UpdateIndexMapping(client *elasticsearch.Client, indexName string, mapping 
 	return nil
 }
 
+func UpdateIndexSettings(client *elasticsearch.Client, indexName string, settings string) error {
+	request := esapi.IndicesPutSettingsRequest{
+		Index: []string{indexName},
+		Body:  strings.NewReader(settings),
+	}
+	response, err := request.Do(context.Background(), client)
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
+	if response.IsError() {
+		return fmt.Errorf("failed to update index settings: %s", response.String())
+	}
+	logging.Info(logging.LoggerInput{Message: "Index settings updated successfully: %s", FormatVal: []any{indexName}})
+	return nil
+}
+
 func TestElastic(client *elasticsearch.Client) {
 	// Check if we are connected to the client
 	_, err := client.Ping()
