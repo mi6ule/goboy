@@ -115,3 +115,19 @@ func PerformAggregation(client *elasticsearch.Client, indexName string, aggregat
 
 	return result, nil
 }
+
+func CreateIndexAlias(client *elasticsearch.Client, aliasName, indexName string) error {
+	aliasCreateRequest := esapi.IndicesPutAliasRequest{
+		Index: []string{indexName},
+		Name:  aliasName,
+	}
+	response, err := aliasCreateRequest.Do(context.Background(), client)
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
+	if response.IsError() {
+		return fmt.Errorf("failed to create alias: %s", response.String())
+	}
+	return nil
+}
