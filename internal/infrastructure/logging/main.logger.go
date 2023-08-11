@@ -1,6 +1,7 @@
 package logging
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -28,14 +29,23 @@ func LoggerGenerator(mode *string) *zerolog.Logger {
 }
 
 type LoggerInput struct {
-	Message string         //optional
-	Code    string         //optional
-	Data    map[string]any //optional
-	Err     error          //optional
-	Path    string         //optional
+	Message   string         //optional
+	Code      string         //optional
+	Data      map[string]any //optional
+	Err       error          //optional
+	Path      string         //optional
+	FormatVal []any          //optional
+}
+
+func formatMessage(inp LoggerInput) string {
+	if len(inp.FormatVal) > 0 {
+		inp.Message = fmt.Sprintf(inp.Message, inp.FormatVal...)
+	}
+	return inp.Message
 }
 
 func Info(inp LoggerInput) {
+	inp.Message = formatMessage(inp)
 	path := util.GetInvokedPath(inp.Path)
 	log := AppLogger.Info().Str("caller", path)
 	if inp.Data != nil {
@@ -48,6 +58,7 @@ func Info(inp LoggerInput) {
 }
 
 func Warn(inp LoggerInput) {
+	inp.Message = formatMessage(inp)
 	path := util.GetInvokedPath(inp.Path)
 	log := AppLogger.Warn().Str("caller", path)
 	if inp.Data != nil {
@@ -60,6 +71,7 @@ func Warn(inp LoggerInput) {
 }
 
 func Error(inp LoggerInput) {
+	inp.Message = formatMessage(inp)
 	path := util.GetInvokedPath(inp.Path)
 	log := AppLogger.Error().Str("caller", path)
 	if inp.Data != nil {
@@ -75,6 +87,7 @@ func Error(inp LoggerInput) {
 }
 
 func Debug(inp LoggerInput) {
+	inp.Message = formatMessage(inp)
 	path := util.GetInvokedPath(inp.Path)
 	log := AppLogger.Debug().Str("caller", path)
 	if inp.Data != nil {
@@ -87,6 +100,7 @@ func Debug(inp LoggerInput) {
 }
 
 func Fatal(inp LoggerInput) {
+	inp.Message = formatMessage(inp)
 	path := util.GetInvokedPath(inp.Path)
 	log := AppLogger.Fatal().Str("caller", path)
 	if inp.Data != nil {
