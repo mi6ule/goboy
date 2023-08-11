@@ -40,3 +40,29 @@ func FullTextSearch(client *elasticsearch.Client, indexName, field, query string
 	}
 	return searchRequest.Do(context.Background(), client)
 }
+
+func FilteredSearch(client *elasticsearch.Client, indexName, field, query string, filterField string, filterValue any, sortField string, sortOrder string) (*esapi.Response, error) {
+	searchRequest := esapi.SearchRequest{
+		Index: []string{indexName},
+		Body: esutil.NewJSONReader(map[string]any{
+			"query": map[string]any{
+				"match": map[string]any{
+					field: query,
+				},
+			},
+			"sort": []map[string]any{
+				{
+					sortField: map[string]any{
+						"order": sortOrder,
+					},
+				},
+			},
+			"post_filter": map[string]any{
+				"term": map[string]any{
+					filterField: filterValue,
+				},
+			},
+		}),
+	}
+	return searchRequest.Do(context.Background(), client)
+}
