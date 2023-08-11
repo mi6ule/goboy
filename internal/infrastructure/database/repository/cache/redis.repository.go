@@ -28,7 +28,7 @@ func (r *RedisRepository) Hget(key string, filed string) (string, error) {
 	return r.Client.Client.HGet(key, filed).Result()
 }
 
-func (r *RedisRepository) Hset(key string, filed string, value interface{}) error {
+func (r *RedisRepository) Hset(key string, filed string, value any) error {
 	return r.Client.Client.HSet(key, filed, value).Err()
 }
 

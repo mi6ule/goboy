@@ -42,7 +42,7 @@ func (db *Database) Close() {
 }
 
 // ExecuteQuery executes the specified SQL query and returns the result
-func (db *Database) ExecuteQuery(query string) ([]map[string]interface{}, error) {
+func (db *Database) ExecuteQuery(query string) ([]map[string]any, error) {
 	rows, err := db.db.Query(query)
 	if err != nil {
 		return nil, err
@@ -54,11 +54,11 @@ func (db *Database) ExecuteQuery(query string) ([]map[string]interface{}, error)
 		return nil, err
 	}
 
-	result := make([]map[string]interface{}, 0)
+	result := make([]map[string]any, 0)
 
 	for rows.Next() {
-		values := make([]interface{}, len(columns))
-		columnPointers := make([]interface{}, len(columns))
+		values := make([]any, len(columns))
+		columnPointers := make([]any, len(columns))
 		for i := range columns {
 			columnPointers[i] = &values[i]
 		}
@@ -68,7 +68,7 @@ func (db *Database) ExecuteQuery(query string) ([]map[string]interface{}, error)
 			return nil, err
 		}
 
-		rowData := make(map[string]interface{})
+		rowData := make(map[string]any)
 		for i, colName := range columns {
 			rowData[colName] = values[i]
 		}
@@ -83,11 +83,11 @@ func (db *Database) ExecuteQuery(query string) ([]map[string]interface{}, error)
 	return result, nil
 }
 
-func (db *Database) Exec(query string, args ...interface{}) (sql.Result, error) {
+func (db *Database) Exec(query string, args ...any) (sql.Result, error) {
 	return db.db.Exec(query, args...)
 }
 
-func (db *Database) QueryRow(query string, args ...interface{}) *sql.Row {
+func (db *Database) QueryRow(query string, args ...any) *sql.Row {
 	logging.Info(logging.LoggerInput{Data: map[string]any{"query": query, "args": args}})
 	return db.db.QueryRow(query, args...)
 }
