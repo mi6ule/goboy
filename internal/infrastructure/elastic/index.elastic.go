@@ -147,3 +147,19 @@ func CreateIndexTemplate(client *elasticsearch.Client, templateName string, temp
 	}
 	return nil
 }
+
+func PerformIndexRollover(client *elasticsearch.Client, aliasName, newIndexName string) error {
+	rolloverRequest := esapi.IndicesRolloverRequest{
+		Alias:    aliasName,
+		NewIndex: newIndexName,
+	}
+	response, err := rolloverRequest.Do(context.Background(), client)
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
+	if response.IsError() {
+		return fmt.Errorf("index rollover failed: %s", response.String())
+	}
+	return nil
+}
