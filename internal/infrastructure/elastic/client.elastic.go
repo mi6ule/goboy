@@ -111,6 +111,22 @@ func UpdateDocument(client *elasticsearch.Client, indexName, documentID string, 
 	return response, nil
 }
 
+func DeleteDocument(client *elasticsearch.Client, indexName, documentID string, updateData map[string]any) (*esapi.Response, error) {
+	request := esapi.DeleteRequest{
+		Index:      indexName,
+		DocumentID: documentID,
+	}
+	response, err := request.Do(context.Background(), client)
+	if err != nil {
+		return nil, err
+	}
+	defer response.Body.Close()
+	if response.IsError() {
+		return nil, fmt.Errorf("document update failed: %s", response.String())
+	}
+	return response, nil
+}
+
 func TestElastic(client *elasticsearch.Client) {
 	// Check if we are connected to the client
 	_, err := client.Ping()
