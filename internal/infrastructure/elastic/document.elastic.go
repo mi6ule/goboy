@@ -190,8 +190,8 @@ func BulkUpdateDocuments(client *elasticsearch.Client, indexName string, updates
 
 	for _, update := range updates {
 		// Action line (update operation)
-		action := map[string]interface{}{
-			"update": map[string]interface{}{
+		action := map[string]any{
+			"update": map[string]any{
 				"_index": indexName,
 				"_id":    update.ID,
 			},
@@ -204,7 +204,7 @@ func BulkUpdateDocuments(client *elasticsearch.Client, indexName string, updates
 		}
 
 		// Update data (only specify fields to update)
-		updateData := map[string]interface{}{
+		updateData := map[string]any{
 			"doc": update.Data,
 		}
 
@@ -234,6 +234,47 @@ func BulkUpdateDocuments(client *elasticsearch.Client, indexName string, updates
 	// Handle the response
 	if response.IsError() {
 		return fmt.Errorf("bulk update without script failed: %s", response.String())
+	}
+
+	return nil
+}
+
+func BulkDeleteDocuments(client *elasticsearch.Client, indexName string, documentIDs []string) error {
+	var buf bytes.Buffer
+
+	for _, docID := range documentIDs {
+		// Action line (delete operation)
+		action := map[string]any{
+			"delete": map[string]any{
+				"_index": indexName,
+				"_id":    docID,
+			},
+		}
+
+		// Convert action to JSON
+		actionBytes, err := json.Marshal(action)
+		if err != nil {
+			return err
+		}
+
+		// Add action to the buffer
+		buf.Write(actionBytes)
+		buf.WriteByte('\n')
+	}
+
+	// Perform the bulk delete request
+	request := esapi.BulkRequest{
+		Body: &buf,
+	}
+	response, err := request.Do(context.Background(), client)
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
+
+	// Handle the response
+	if response.IsError() {
+		return fmt.Errorf("bulk delete failed: %s", response.String())
 	}
 
 	return nil
