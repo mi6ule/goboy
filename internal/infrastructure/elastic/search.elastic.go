@@ -66,3 +66,19 @@ func FilteredSearch(client *elasticsearch.Client, indexName, field, query string
 	}
 	return searchRequest.Do(context.Background(), client)
 }
+
+func PaginatedSearch(client *elasticsearch.Client, indexName, field, query string, size, from int) (*esapi.Response, error) {
+	searchRequest := esapi.SearchRequest{
+		Index: []string{indexName},
+		Body: esutil.NewJSONReader(map[string]any{
+			"query": map[string]any{
+				"match": map[string]any{
+					field: query,
+				},
+			},
+			"size": size,
+			"from": from,
+		}),
+	}
+	return searchRequest.Do(context.Background(), client)
+}
