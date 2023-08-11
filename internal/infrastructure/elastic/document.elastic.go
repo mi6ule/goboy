@@ -67,3 +67,54 @@ func DeleteDocument(client *elasticsearch.Client, indexName string, documentID s
 	}
 	return response, nil
 }
+
+func BulkIndexDocuments(client *elasticsearch.Client, indexName string, documents []map[string]any) error {
+	// Create a buffer to store bulk request body
+	var buf bytes.Buffer
+
+	// Loop through the list of documents and construct the bulk request
+	for _, doc := range documents {
+		// Action line (index operation)
+		action := map[string]any{
+			"index": map[string]any{
+				"_index": indexName,
+				"_id":    doc["id"], // Assuming each document has a unique "id" field
+			},
+		}
+
+		// Convert action to JSON
+		actionBytes, err := json.Marshal(action)
+		if err != nil {
+			return err
+		}
+
+		// Document line (actual data to index)
+		documentBytes, err := json.Marshal(doc)
+		if err != nil {
+			return err
+		}
+
+		// Add action and document lines to the buffer
+		buf.Write(actionBytes)
+		buf.WriteByte('\n')
+		buf.Write(documentBytes)
+		buf.WriteByte('\n')
+	}
+
+	// Perform the bulk request
+	request := esapi.BulkRequest{
+		Body: &buf,
+	}
+	response, err := request.Do(context.Background(), client)
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
+
+	// Handle the response
+	if response.IsError() {
+		return fmt.Errorf("bulk indexing failed: %s", response.String())
+	}
+
+	return nil
+}
