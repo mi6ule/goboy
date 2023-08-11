@@ -2,11 +2,13 @@ package elastic
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 
 	elasticsearch "github.com/elastic/go-elasticsearch/v8"
 	"github.com/elastic/go-elasticsearch/v8/esapi"
+	"github.com/elastic/go-elasticsearch/v8/esutil"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
 )
 
@@ -84,4 +86,32 @@ func UpdateIndexSettings(client *elasticsearch.Client, indexName string, setting
 	}
 	logging.Info(logging.LoggerInput{Message: "Index settings updated successfully: %s", FormatVal: []any{indexName}})
 	return nil
+}
+
+func PerformAggregation(client *elasticsearch.Client, indexName string, aggregationQuery map[string]any) (map[string]any, error) {
+	// Prepare the search request with aggregation
+	searchRequest := esapi.SearchRequest{
+		Index: []string{indexName},
+		Body:  esutil.NewJSONReader(aggregationQuery),
+	}
+
+	// Perform the search with aggregation
+	response, err := searchRequest.Do(context.Background(), client)
+	if err != nil {
+		return nil, err
+	}
+	defer response.Body.Close()
+
+	// Handle the response
+	if response.IsError() {
+		return nil, fmt.Errorf("aggregation query failed: %s", response.String())
+	}
+
+	// Parse the aggregation results
+	var result map[string]any
+	if err := json.NewDecoder(response.Body).Decode(&result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
