@@ -73,7 +73,7 @@ func CreateIndex(client *elasticsearch.Client, name string) error {
 }
 
 // Search in elastic indicies
-func SearchIndex(client *elasticsearch.Client, indexName, query string) (*esapi.Response, error) {
+func SearchIndex(client *elasticsearch.Client, indexName string, query string) (*esapi.Response, error) {
 	request := esapi.SearchRequest{
 		Index:          []string{indexName},
 		Query:          query,
@@ -90,7 +90,7 @@ func SearchIndex(client *elasticsearch.Client, indexName, query string) (*esapi.
 	return response, nil
 }
 
-func CreateDocument(client *elasticsearch.Client, indexName, documentID string, createData map[string]any) (*esapi.Response, error) {
+func CreateDocument(client *elasticsearch.Client, indexName string, documentID string, createData map[string]any) (*esapi.Response, error) {
 	createJSON, err := json.Marshal(createData)
 	if err != nil {
 		return nil, err
@@ -111,7 +111,7 @@ func CreateDocument(client *elasticsearch.Client, indexName, documentID string, 
 	return response, nil
 }
 
-func UpdateDocument(client *elasticsearch.Client, indexName, documentID string, updateData map[string]any) (*esapi.Response, error) {
+func UpdateDocument(client *elasticsearch.Client, indexName string, documentID string, updateData map[string]any) (*esapi.Response, error) {
 	updateJSON, err := json.Marshal(updateData)
 	if err != nil {
 		return nil, err
@@ -132,7 +132,7 @@ func UpdateDocument(client *elasticsearch.Client, indexName, documentID string, 
 	return response, nil
 }
 
-func DeleteDocument(client *elasticsearch.Client, indexName, documentID string) (*esapi.Response, error) {
+func DeleteDocument(client *elasticsearch.Client, indexName string, documentID string) (*esapi.Response, error) {
 	request := esapi.DeleteRequest{
 		Index:      indexName,
 		DocumentID: documentID,
