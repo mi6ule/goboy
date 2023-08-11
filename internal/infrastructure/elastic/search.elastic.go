@@ -6,6 +6,7 @@ import (
 
 	elasticsearch "github.com/elastic/go-elasticsearch/v8"
 	"github.com/elastic/go-elasticsearch/v8/esapi"
+	"github.com/elastic/go-elasticsearch/v8/esutil"
 )
 
 // Search in elastic indicies
@@ -24,4 +25,18 @@ func SearchIndex(client *elasticsearch.Client, indexName string, query string) (
 		return nil, fmt.Errorf("search failed: %s", response.String())
 	}
 	return response, nil
+}
+
+func FullTextSearch(client *elasticsearch.Client, indexName, field, query string) (*esapi.Response, error) {
+	searchRequest := esapi.SearchRequest{
+		Index: []string{indexName},
+		Body: esutil.NewJSONReader(map[string]any{
+			"query": map[string]any{
+				"match": map[string]any{
+					field: query,
+				},
+			},
+		}),
+	}
+	return searchRequest.Do(context.Background(), client)
 }
