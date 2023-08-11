@@ -51,7 +51,7 @@ func RunSqlMigrations(db *persistence.Database) error {
 		}
 
 		// Print the applied migration
-		logging.Info((logging.LoggerInput{Message: fmt.Sprintf("Applied migration: %s\n", migrationName)}))
+		logging.Info((logging.LoggerInput{Message: fmt.Sprintf("Applied migration: %s", migrationName)}))
 	}
 
 	return nil

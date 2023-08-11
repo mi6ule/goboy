@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	elasticsearch "github.com/elastic/go-elasticsearch/v8"
 	"github.com/elastic/go-elasticsearch/v8/esapi"
@@ -62,11 +63,11 @@ func CreateIndex(client *elasticsearch.Client, name string) error {
 		if createIndexResponse.IsError() {
 			return fmt.Errorf("failed to create index: %s", createIndexResponse.String())
 		}
-		logging.Info(logging.LoggerInput{Message: fmt.Sprintf("Index created: %s", name)})
+		logging.Info(logging.LoggerInput{Message: "Index created: %s", FormatVal: []any{name}})
 	} else if exists.IsError() {
 		return fmt.Errorf("failed to check index existence: %s", exists.String())
 	} else {
-		logging.Info(logging.LoggerInput{Message: fmt.Sprintf("Index already exists: %s", name)})
+		logging.Info(logging.LoggerInput{Message: "Index already exists: %s", FormatVal: []any{name}})
 	}
 
 	return nil
@@ -148,6 +149,23 @@ func DeleteDocument(client *elasticsearch.Client, indexName string, documentID s
 	return response, nil
 }
 
+func UpdateIndexMapping(client *elasticsearch.Client, indexName string, mapping string) error {
+	request := esapi.IndicesPutMappingRequest{
+		Index: []string{indexName},
+		Body:  strings.NewReader(mapping),
+	}
+	response, err := request.Do(context.Background(), client)
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
+	if response.IsError() {
+		return fmt.Errorf("failed to update index mapping: %s", response.String())
+	}
+	logging.Info(logging.LoggerInput{Message: "Index mapping updated successfully: %s", FormatVal: []any{indexName}})
+	return nil
+}
+
 func TestElastic(client *elasticsearch.Client) {
 	// Check if we are connected to the client
 	_, err := client.Ping()
@@ -164,5 +182,5 @@ func TestElastic(client *elasticsearch.Client) {
 	var result map[string]any
 	err = json.NewDecoder(res.Body).Decode(&result)
 	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "Error parsing the response", Err: err})
-	logging.Info(logging.LoggerInput{Message: fmt.Sprintf("Search results: %v\n", result)})
+	logging.Info(logging.LoggerInput{Message: "Search results: %v", FormatVal: []any{result}})
 }
