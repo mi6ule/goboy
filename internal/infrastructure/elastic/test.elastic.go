@@ -43,11 +43,11 @@ func TestElastic(elastic *Elastic) error {
 	logging.Info(logging.LoggerInput{Message: "created doc!", Data: map[string]any{"status": res.StatusCode, "stringResponse": res.String()}})
 
 	// Update the new log document
-	// res, err = elastic.UpdateDocument(constants.LOGS_ELASTIC_INDEX, logId, map[string]any{"Message": "log insert test updated"})
-	// if err != nil {
-	// 	return err
-	// }
-	// logging.Info(logging.LoggerInput{Message: "updated doc!", Data: map[string]any{"status": res.StatusCode, "stringResponse": res.String()}})
+	res, err = elastic.UpdateDocument(constants.LOGS_ELASTIC_INDEX, logId, map[string]any{"Message": "log insert test updated"})
+	if err != nil {
+		return err
+	}
+	logging.Info(logging.LoggerInput{Message: "updated doc!", Data: map[string]any{"status": res.StatusCode, "stringResponse": res.String()}})
 
 	// Delete the new log document
 	res, err = elastic.DeleteDocument(constants.LOGS_ELASTIC_INDEX, logId)
@@ -69,8 +69,7 @@ func TestElastic(elastic *Elastic) error {
 		return err
 	}
 	var result map[string]any
-	err = json.NewDecoder(res.Body).Decode(&result)
-	if err != nil {
+	if err = json.NewDecoder(res.Body).Decode(&result); err != nil {
 		return err
 	}
 	logging.Info(logging.LoggerInput{Message: "Search results", Data: result})

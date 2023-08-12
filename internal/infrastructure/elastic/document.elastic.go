@@ -40,7 +40,7 @@ func (e *Elastic) CreateDocument(indexName string, documentID string, createData
 }
 
 func (e *Elastic) UpdateDocument(indexName string, documentID string, updateData map[string]any) (*esapi.Response, error) {
-	updateJSON, err := json.Marshal(updateData)
+	updateJSON, err := json.Marshal(map[string]any{"doc": updateData})
 	if err != nil {
 		return nil, err
 	}
