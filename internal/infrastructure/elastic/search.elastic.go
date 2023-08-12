@@ -3,6 +3,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/elastic/go-elasticsearch/v8/esapi"
 	"github.com/elastic/go-elasticsearch/v8/esutil"
@@ -12,14 +13,13 @@ import (
 func (e *Elastic) SearchIndex(indexName string, query string) (*esapi.Response, error) {
 	request := esapi.SearchRequest{
 		Index:          []string{indexName},
-		Query:          query,
+		Body:           strings.NewReader(query),
 		TrackTotalHits: true,
 	}
 	response, err := request.Do(context.Background(), e.Client)
 	if err != nil {
 		return nil, err
 	}
-	defer response.Body.Close()
 	if response.IsError() {
 		return nil, fmt.Errorf("search failed: %s", response.String())
 	}

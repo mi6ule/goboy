@@ -33,7 +33,6 @@ func (e *Elastic) CreateDocument(indexName string, documentID string, createData
 	if err != nil {
 		return nil, err
 	}
-	defer response.Body.Close()
 	if response.IsError() {
 		return nil, fmt.Errorf("document create failed: %s", response.String())
 	}
@@ -54,7 +53,6 @@ func (e *Elastic) UpdateDocument(indexName string, documentID string, updateData
 	if err != nil {
 		return nil, err
 	}
-	defer response.Body.Close()
 	if response.IsError() {
 		return nil, fmt.Errorf("document update failed: %s", response.String())
 	}
@@ -70,7 +68,6 @@ func (e *Elastic) DeleteDocument(indexName string, documentID string) (*esapi.Re
 	if err != nil {
 		return nil, err
 	}
-	defer response.Body.Close()
 	if response.IsError() {
 		return nil, fmt.Errorf("document delete failed: %s", response.String())
 	}
@@ -118,7 +115,6 @@ func (e *Elastic) BulkIndexDocuments(indexName string, documents []map[string]an
 	if err != nil {
 		return err
 	}
-	defer response.Body.Close()
 
 	// Handle the response
 	if response.IsError() {
@@ -174,7 +170,6 @@ func (e *Elastic) BulkUpdateDocumentsWithScript(indexName string, updates []Bulk
 	if err != nil {
 		return err
 	}
-	defer response.Body.Close()
 
 	// Handle the response
 	if response.IsError() {
@@ -228,7 +223,6 @@ func (e *Elastic) BulkUpdateDocuments(indexName string, updates []BulkUpdateItem
 	if err != nil {
 		return err
 	}
-	defer response.Body.Close()
 
 	// Handle the response
 	if response.IsError() {
@@ -269,7 +263,6 @@ func (e *Elastic) BulkDeleteDocuments(indexName string, documentIDs []string) er
 	if err != nil {
 		return err
 	}
-	defer response.Body.Close()
 
 	// Handle the response
 	if response.IsError() {

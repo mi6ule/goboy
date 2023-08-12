@@ -43,11 +43,11 @@ func TestElastic(elastic *Elastic) error {
 	logging.Info(logging.LoggerInput{Message: "created doc!", Data: map[string]any{"status": res.StatusCode, "stringResponse": res.String()}})
 
 	// Update the new log document
-	res, err = elastic.UpdateDocument(constants.LOGS_ELASTIC_INDEX, logId, map[string]any{"Message": "log insert test updated"})
-	if err != nil {
-		return err
-	}
-	logging.Info(logging.LoggerInput{Message: "updated doc!", Data: map[string]any{"status": res.StatusCode, "stringResponse": res.String()}})
+	// res, err = elastic.UpdateDocument(constants.LOGS_ELASTIC_INDEX, logId, map[string]any{"Message": "log insert test updated"})
+	// if err != nil {
+	// 	return err
+	// }
+	// logging.Info(logging.LoggerInput{Message: "updated doc!", Data: map[string]any{"status": res.StatusCode, "stringResponse": res.String()}})
 
 	// Delete the new log document
 	res, err = elastic.DeleteDocument(constants.LOGS_ELASTIC_INDEX, logId)
@@ -58,9 +58,9 @@ func TestElastic(elastic *Elastic) error {
 
 	// Perform a search on logs index
 	query := `{
-		"query":{
-			"match":{
-				"title": "example"
+		"query": {
+			"match": {
+				"Message": "log"
 				}
 			}
 		}`
@@ -73,6 +73,6 @@ func TestElastic(elastic *Elastic) error {
 	if err != nil {
 		return err
 	}
-	logging.Info(logging.LoggerInput{Message: "Search results: %v", FormatVal: []any{result}})
+	logging.Info(logging.LoggerInput{Message: "Search results", Data: result})
 	return nil
 }

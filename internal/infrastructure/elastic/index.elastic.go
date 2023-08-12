@@ -51,7 +51,6 @@ func (e *Elastic) UpdateIndexMapping(indexName string, mapping string) error {
 	if err != nil {
 		return err
 	}
-	defer response.Body.Close()
 	if response.IsError() {
 		return fmt.Errorf("failed to update index mapping: %s", response.String())
 	}
@@ -68,7 +67,6 @@ func (e *Elastic) UpdateIndexSettings(indexName string, settings string) error {
 	if err != nil {
 		return err
 	}
-	defer response.Body.Close()
 	if response.IsError() {
 		return fmt.Errorf("failed to update index settings: %s", response.String())
 	}
@@ -88,7 +86,6 @@ func (e *Elastic) PerformAggregation(indexName string, aggregationQuery map[stri
 	if err != nil {
 		return nil, err
 	}
-	defer response.Body.Close()
 
 	// Handle the response
 	if response.IsError() {
@@ -113,7 +110,6 @@ func (e *Elastic) CreateIndexAlias(aliasName, indexName string) error {
 	if err != nil {
 		return err
 	}
-	defer response.Body.Close()
 	if response.IsError() {
 		return fmt.Errorf("failed to create alias: %s", response.String())
 	}
@@ -129,7 +125,6 @@ func (e *Elastic) CreateIndexTemplate(templateName string, templateBody map[stri
 	if err != nil {
 		return err
 	}
-	defer response.Body.Close()
 	if response.IsError() {
 		return fmt.Errorf("failed to create index template: %s", response.String())
 	}
@@ -145,7 +140,6 @@ func (e *Elastic) PerformIndexRollover(aliasName, newIndexName string) error {
 	if err != nil {
 		return err
 	}
-	defer response.Body.Close()
 	if response.IsError() {
 		return fmt.Errorf("index rollover failed: %s", response.String())
 	}
