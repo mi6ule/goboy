@@ -5,7 +5,11 @@ import (
 	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
 )
 
-func NewElasticClient(conf config.ElasticConfig) (*elasticsearch.Client, error) {
+type Elastic struct {
+	Client *elasticsearch.Client
+}
+
+func NewElasticClient(conf config.ElasticConfig) (*Elastic, error) {
 	cfg := elasticsearch.Config{
 		Addresses: []string{
 			conf.Url,
@@ -19,22 +23,8 @@ func NewElasticClient(conf config.ElasticConfig) (*elasticsearch.Client, error) 
 	if err != nil {
 		return nil, err
 	}
-	return client, nil
-}
 
-func NewTypedElasticClient(conf config.ElasticConfig) (*elasticsearch.TypedClient, error) {
-	cfg := elasticsearch.Config{
-		Addresses: []string{
-			conf.Url,
-		},
-		Username:          conf.Username,
-		Password:          conf.Pwd,
-		EnableDebugLogger: true,
-	}
-
-	client, err := elasticsearch.NewTypedClient(cfg)
-	if err != nil {
-		return nil, err
-	}
-	return client, nil
+	elastic := Elastic{Client: client}
+	elastic.InitIndecies()
+	return &elastic, nil
 }

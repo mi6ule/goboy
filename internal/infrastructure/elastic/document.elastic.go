@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	elasticsearch "github.com/elastic/go-elasticsearch/v8"
 	"github.com/elastic/go-elasticsearch/v8/esapi"
 )
 
@@ -20,7 +19,7 @@ type BulkUpdateItem struct {
 	Data string
 }
 
-func CreateDocument(client *elasticsearch.Client, indexName string, documentID string, createData map[string]any) (*esapi.Response, error) {
+func (e *Elastic) CreateDocument(indexName string, documentID string, createData map[string]any) (*esapi.Response, error) {
 	createJSON, err := json.Marshal(createData)
 	if err != nil {
 		return nil, err
@@ -30,7 +29,7 @@ func CreateDocument(client *elasticsearch.Client, indexName string, documentID s
 		DocumentID: documentID,
 		Body:       bytes.NewReader(createJSON),
 	}
-	response, err := request.Do(context.Background(), client)
+	response, err := request.Do(context.Background(), e.Client)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +40,7 @@ func CreateDocument(client *elasticsearch.Client, indexName string, documentID s
 	return response, nil
 }
 
-func UpdateDocument(client *elasticsearch.Client, indexName string, documentID string, updateData map[string]any) (*esapi.Response, error) {
+func (e *Elastic) UpdateDocument(indexName string, documentID string, updateData map[string]any) (*esapi.Response, error) {
 	updateJSON, err := json.Marshal(updateData)
 	if err != nil {
 		return nil, err
@@ -51,7 +50,7 @@ func UpdateDocument(client *elasticsearch.Client, indexName string, documentID s
 		DocumentID: documentID,
 		Body:       bytes.NewReader(updateJSON),
 	}
-	response, err := request.Do(context.Background(), client)
+	response, err := request.Do(context.Background(), e.Client)
 	if err != nil {
 		return nil, err
 	}
@@ -62,12 +61,12 @@ func UpdateDocument(client *elasticsearch.Client, indexName string, documentID s
 	return response, nil
 }
 
-func DeleteDocument(client *elasticsearch.Client, indexName string, documentID string) (*esapi.Response, error) {
+func (e *Elastic) DeleteDocument(indexName string, documentID string) (*esapi.Response, error) {
 	request := esapi.DeleteRequest{
 		Index:      indexName,
 		DocumentID: documentID,
 	}
-	response, err := request.Do(context.Background(), client)
+	response, err := request.Do(context.Background(), e.Client)
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +77,7 @@ func DeleteDocument(client *elasticsearch.Client, indexName string, documentID s
 	return response, nil
 }
 
-func BulkIndexDocuments(client *elasticsearch.Client, indexName string, documents []map[string]any) error {
+func (e *Elastic) BulkIndexDocuments(indexName string, documents []map[string]any) error {
 	// Create a buffer to store bulk request body
 	var buf bytes.Buffer
 
@@ -115,7 +114,7 @@ func BulkIndexDocuments(client *elasticsearch.Client, indexName string, document
 	request := esapi.BulkRequest{
 		Body: &buf,
 	}
-	response, err := request.Do(context.Background(), client)
+	response, err := request.Do(context.Background(), e.Client)
 	if err != nil {
 		return err
 	}
@@ -129,7 +128,7 @@ func BulkIndexDocuments(client *elasticsearch.Client, indexName string, document
 	return nil
 }
 
-func BulkUpdateDocumentsWithScript(client *elasticsearch.Client, indexName string, updates []BulkUpdateItemWithScript) error {
+func (e *Elastic) BulkUpdateDocumentsWithScript(indexName string, updates []BulkUpdateItemWithScript) error {
 	var buf bytes.Buffer
 
 	for _, update := range updates {
@@ -171,7 +170,7 @@ func BulkUpdateDocumentsWithScript(client *elasticsearch.Client, indexName strin
 	request := esapi.BulkRequest{
 		Body: &buf,
 	}
-	response, err := request.Do(context.Background(), client)
+	response, err := request.Do(context.Background(), e.Client)
 	if err != nil {
 		return err
 	}
@@ -185,7 +184,7 @@ func BulkUpdateDocumentsWithScript(client *elasticsearch.Client, indexName strin
 	return nil
 }
 
-func BulkUpdateDocuments(client *elasticsearch.Client, indexName string, updates []BulkUpdateItem) error {
+func (e *Elastic) BulkUpdateDocuments(indexName string, updates []BulkUpdateItem) error {
 	var buf bytes.Buffer
 
 	for _, update := range updates {
@@ -225,7 +224,7 @@ func BulkUpdateDocuments(client *elasticsearch.Client, indexName string, updates
 	request := esapi.BulkRequest{
 		Body: &buf,
 	}
-	response, err := request.Do(context.Background(), client)
+	response, err := request.Do(context.Background(), e.Client)
 	if err != nil {
 		return err
 	}
@@ -239,7 +238,7 @@ func BulkUpdateDocuments(client *elasticsearch.Client, indexName string, updates
 	return nil
 }
 
-func BulkDeleteDocuments(client *elasticsearch.Client, indexName string, documentIDs []string) error {
+func (e *Elastic) BulkDeleteDocuments(indexName string, documentIDs []string) error {
 	var buf bytes.Buffer
 
 	for _, docID := range documentIDs {
@@ -266,7 +265,7 @@ func BulkDeleteDocuments(client *elasticsearch.Client, indexName string, documen
 	request := esapi.BulkRequest{
 		Body: &buf,
 	}
-	response, err := request.Do(context.Background(), client)
+	response, err := request.Do(context.Background(), e.Client)
 	if err != nil {
 		return err
 	}

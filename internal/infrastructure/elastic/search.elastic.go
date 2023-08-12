@@ -4,19 +4,18 @@ import (
 	"context"
 	"fmt"
 
-	elasticsearch "github.com/elastic/go-elasticsearch/v8"
 	"github.com/elastic/go-elasticsearch/v8/esapi"
 	"github.com/elastic/go-elasticsearch/v8/esutil"
 )
 
 // Search in elastic indicies
-func SearchIndex(client *elasticsearch.Client, indexName string, query string) (*esapi.Response, error) {
+func (e *Elastic) SearchIndex(indexName string, query string) (*esapi.Response, error) {
 	request := esapi.SearchRequest{
 		Index:          []string{indexName},
 		Query:          query,
 		TrackTotalHits: true,
 	}
-	response, err := request.Do(context.Background(), client)
+	response, err := request.Do(context.Background(), e.Client)
 	if err != nil {
 		return nil, err
 	}
@@ -27,7 +26,7 @@ func SearchIndex(client *elasticsearch.Client, indexName string, query string) (
 	return response, nil
 }
 
-func FullTextSearch(client *elasticsearch.Client, indexName, field, query string) (*esapi.Response, error) {
+func (e *Elastic) FullTextSearch(indexName, field, query string) (*esapi.Response, error) {
 	searchRequest := esapi.SearchRequest{
 		Index: []string{indexName},
 		Body: esutil.NewJSONReader(map[string]any{
@@ -38,10 +37,10 @@ func FullTextSearch(client *elasticsearch.Client, indexName, field, query string
 			},
 		}),
 	}
-	return searchRequest.Do(context.Background(), client)
+	return searchRequest.Do(context.Background(), e.Client)
 }
 
-func FilteredSearch(client *elasticsearch.Client, indexName, field, query string, filterField string, filterValue any, sortField string, sortOrder string) (*esapi.Response, error) {
+func (e *Elastic) FilteredSearch(indexName, field, query string, filterField string, filterValue any, sortField string, sortOrder string) (*esapi.Response, error) {
 	searchRequest := esapi.SearchRequest{
 		Index: []string{indexName},
 		Body: esutil.NewJSONReader(map[string]any{
@@ -64,10 +63,10 @@ func FilteredSearch(client *elasticsearch.Client, indexName, field, query string
 			},
 		}),
 	}
-	return searchRequest.Do(context.Background(), client)
+	return searchRequest.Do(context.Background(), e.Client)
 }
 
-func PaginatedSearch(client *elasticsearch.Client, indexName, field, query string, size, from int) (*esapi.Response, error) {
+func (e *Elastic) PaginatedSearch(indexName, field, query string, size, from int) (*esapi.Response, error) {
 	searchRequest := esapi.SearchRequest{
 		Index: []string{indexName},
 		Body: esutil.NewJSONReader(map[string]any{
@@ -80,10 +79,10 @@ func PaginatedSearch(client *elasticsearch.Client, indexName, field, query strin
 			"from": from,
 		}),
 	}
-	return searchRequest.Do(context.Background(), client)
+	return searchRequest.Do(context.Background(), e.Client)
 }
 
-func HighlightedSearch(client *elasticsearch.Client, indexName, field, query string) (*esapi.Response, error) {
+func (e *Elastic) HighlightedSearch(indexName, field, query string) (*esapi.Response, error) {
 	searchRequest := esapi.SearchRequest{
 		Index: []string{indexName},
 		Body: esutil.NewJSONReader(map[string]interface{}{
@@ -99,5 +98,5 @@ func HighlightedSearch(client *elasticsearch.Client, indexName, field, query str
 			},
 		}),
 	}
-	return searchRequest.Do(context.Background(), client)
+	return searchRequest.Do(context.Background(), e.Client)
 }

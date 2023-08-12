@@ -6,19 +6,25 @@ import (
 	"fmt"
 	"strings"
 
-	elasticsearch "github.com/elastic/go-elasticsearch/v8"
 	"github.com/elastic/go-elasticsearch/v8/esapi"
 	"github.com/elastic/go-elasticsearch/v8/esutil"
+	constants "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/constant"
+	errorhandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/error-handler"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
 )
 
-func CreateIndex(client *elasticsearch.Client, name string) error {
-	exists, err := client.Indices.Exists([]string{name})
+func (e *Elastic) InitIndecies() {
+	err := e.CreateIndex(constants.LOGS_ELASTIC_INDEX)
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err})
+}
+
+func (e *Elastic) CreateIndex(name string) error {
+	exists, err := e.Client.Indices.Exists([]string{name})
 	if err != nil {
 		return err
 	}
 	if exists.StatusCode == 404 {
-		createIndexResponse, err := client.Indices.Create(name)
+		createIndexResponse, err := e.Client.Indices.Create(name)
 		if err != nil {
 			return err
 		}
@@ -36,12 +42,12 @@ func CreateIndex(client *elasticsearch.Client, name string) error {
 	return nil
 }
 
-func UpdateIndexMapping(client *elasticsearch.Client, indexName string, mapping string) error {
+func (e *Elastic) UpdateIndexMapping(indexName string, mapping string) error {
 	request := esapi.IndicesPutMappingRequest{
 		Index: []string{indexName},
 		Body:  strings.NewReader(mapping),
 	}
-	response, err := request.Do(context.Background(), client)
+	response, err := request.Do(context.Background(), e.Client)
 	if err != nil {
 		return err
 	}
@@ -53,12 +59,12 @@ func UpdateIndexMapping(client *elasticsearch.Client, indexName string, mapping 
 	return nil
 }
 
-func UpdateIndexSettings(client *elasticsearch.Client, indexName string, settings string) error {
+func (e *Elastic) UpdateIndexSettings(indexName string, settings string) error {
 	request := esapi.IndicesPutSettingsRequest{
 		Index: []string{indexName},
 		Body:  strings.NewReader(settings),
 	}
-	response, err := request.Do(context.Background(), client)
+	response, err := request.Do(context.Background(), e.Client)
 	if err != nil {
 		return err
 	}
@@ -70,7 +76,7 @@ func UpdateIndexSettings(client *elasticsearch.Client, indexName string, setting
 	return nil
 }
 
-func PerformAggregation(client *elasticsearch.Client, indexName string, aggregationQuery map[string]any) (map[string]any, error) {
+func (e *Elastic) PerformAggregation(indexName string, aggregationQuery map[string]any) (map[string]any, error) {
 	// Prepare the search request with aggregation
 	searchRequest := esapi.SearchRequest{
 		Index: []string{indexName},
@@ -78,7 +84,7 @@ func PerformAggregation(client *elasticsearch.Client, indexName string, aggregat
 	}
 
 	// Perform the search with aggregation
-	response, err := searchRequest.Do(context.Background(), client)
+	response, err := searchRequest.Do(context.Background(), e.Client)
 	if err != nil {
 		return nil, err
 	}
@@ -98,12 +104,12 @@ func PerformAggregation(client *elasticsearch.Client, indexName string, aggregat
 	return result, nil
 }
 
-func CreateIndexAlias(client *elasticsearch.Client, aliasName, indexName string) error {
+func (e *Elastic) CreateIndexAlias(aliasName, indexName string) error {
 	aliasCreateRequest := esapi.IndicesPutAliasRequest{
 		Index: []string{indexName},
 		Name:  aliasName,
 	}
-	response, err := aliasCreateRequest.Do(context.Background(), client)
+	response, err := aliasCreateRequest.Do(context.Background(), e.Client)
 	if err != nil {
 		return err
 	}
@@ -114,12 +120,12 @@ func CreateIndexAlias(client *elasticsearch.Client, aliasName, indexName string)
 	return nil
 }
 
-func CreateIndexTemplate(client *elasticsearch.Client, templateName string, templateBody map[string]any) error {
+func (e *Elastic) CreateIndexTemplate(templateName string, templateBody map[string]any) error {
 	createTemplateRequest := esapi.IndicesPutTemplateRequest{
 		Name: templateName,
 		Body: esutil.NewJSONReader(templateBody),
 	}
-	response, err := createTemplateRequest.Do(context.Background(), client)
+	response, err := createTemplateRequest.Do(context.Background(), e.Client)
 	if err != nil {
 		return err
 	}
@@ -130,12 +136,12 @@ func CreateIndexTemplate(client *elasticsearch.Client, templateName string, temp
 	return nil
 }
 
-func PerformIndexRollover(client *elasticsearch.Client, aliasName, newIndexName string) error {
+func (e *Elastic) PerformIndexRollover(aliasName, newIndexName string) error {
 	rolloverRequest := esapi.IndicesRolloverRequest{
 		Alias:    aliasName,
 		NewIndex: newIndexName,
 	}
-	response, err := rolloverRequest.Do(context.Background(), client)
+	response, err := rolloverRequest.Do(context.Background(), e.Client)
 	if err != nil {
 		return err
 	}
