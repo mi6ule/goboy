@@ -51,7 +51,8 @@ func main() {
 
 	client, err := elastic.NewElasticClient(configData.ElasticSearch)
 	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Message: "error creating elastic client", Code: constants.ERROR_CODE_100019})
-	elastic.TestElastic(client)
+	err = elastic.TestElastic(client)
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err})
 	// messagequeue.TestMessageQueue(configData.Redis.Host)
 	TestClientRepo(mongoClient, redisClient)
 	router := rest.SetupRouter(configData.App.AppEnv)
