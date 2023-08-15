@@ -1,0 +1,10 @@
+# read the docs here https://buf.build/docs
+version: v1
+plugins:
+  - plugin: go
+    out: ./internal/infrastructure/proto/gen
+    opt: paths=source_relative
+  - plugin: buf.build/grpc/go:v1.2.0
+    out: ./internal/infrastructure/proto/gen
+    opt:
+      - paths=source_relative
