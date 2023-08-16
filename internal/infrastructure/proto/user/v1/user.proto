@@ -1,8 +1,0 @@
-syntax = "proto3";
-package internal.infrastructure.proto.user.v1;
-
-option go_package = "gitlab.avakatan.ir/boilerplates/go-boiler/internal/";
-
-message User {
-    string id = 1;
-}
