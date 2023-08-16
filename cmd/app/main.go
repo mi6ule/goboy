@@ -84,9 +84,9 @@ func main() {
 	}
 
 	TestClientRepo(mongoClient, redisClient)
-	
+
 	// Run gRPC server
-	go startGRPCServer()
+	go startGRPCServer(mongoClient, redisClient)
 
 	// Set up REST endpoints
 	router := rest.SetupRouter(configData.App.AppEnv)
@@ -99,14 +99,16 @@ func main() {
 	}
 }
 
-func startGRPCServer() {
+func startGRPCServer(db *persistence.MongoDatabase, redisClient *persistence.RedisClient) {
 	lis, err := net.Listen("tcp", "127.0.0.1:9879")
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
+	grpcUserService := grpc_service.NewGrpcUserService(db, redisClient)
+
 	grpcServer := grpc.NewServer()
-	userpb.RegisterUserServiceServer(grpcServer, &grpc_service.GrpcUserService{})
+	userpb.RegisterUserServiceServer(grpcServer, grpcUserService)
 	grpcServer.Serve(lis)
 }
 
@@ -114,15 +116,15 @@ func TestClientRepo(db *persistence.MongoDatabase, redisClient *persistence.Redi
 	clientRepository := readRepository.NewMongoDBClientRepository(db.Database, redisClient)
 
 	client := &query_model.Client{
-		ID:        123456789,
-		UserID:    123456789,
-		PersonID:  123456798,
-		FirstName: "alireza",
-		LastName:  "khaki",
-		Age:       25,
-		Username:  "a.khaki",
-		Email:     "a.khaki@domil.io",
-		Password:  "pass",
+		ID: 123456789,
+		// UserID:    123456789,
+		// PersonID:  123456798,
+		// FirstName: "alireza",
+		// LastName:  "khaki",
+		// Age:       25,
+		// Username:  "a.khaki",
+		// Email:     "a.khaki@domil.io",
+		// Password:  "pass",
 	}
 
 	// Use a channel to receive the findClient value
