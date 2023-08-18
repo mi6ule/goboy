@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"sync"
+	"time"
 
 	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
 	constants "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/constant"
@@ -11,9 +12,13 @@ import (
 	query_model "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/model/query"
 	cacheRepository "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/repository/cache"
 	readRepository "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/repository/query"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/elastic"
+	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/message/consumer"
+	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/message/producer"
+
+	// "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/elastic"
 	errorhandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/error-handler"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
+	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/message"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/rest"
 	restrouter "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/rest/router"
 
@@ -38,6 +43,22 @@ func main() {
 	mongoClient, err := persistence.NoSQLConnection("mongodb", configData.MongoDb)
 	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "failed to connect to mongoDb", Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100003})
 
+	// Kafka
+	message.CreateTopics()
+	pp := producer.NewPersonProducer(message.MessageProducer(), "person-topic")
+	err = pp.Send("create-person", fmt.Sprintf(`{"firstName":"Morgan", "lastName":"Freeman", "timestamp": "%v"}`, time.Now().Format("2006-01-02 15:04:05")))
+	err = pp.Send("create-person", fmt.Sprintf(`{"firstName":"Leonardo", "lastName":"Dicaprio", "timestamp": "%v"}`, time.Now().Format("2006-01-02 15:04:05")))
+	err = pp.Send("create-person", fmt.Sprintf(`{"firstName":"Matt", "lastName":"Damon", "timestamp": "%v"}`, time.Now().Format("2006-01-02 15:04:05")))
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Code: constants.ERROR_CODE_100020})
+	pc := consumer.NewPersonConsumer(message.MessageConsumer(), "person-topic")
+	ConsumerFunc := func(message string) {
+		logging.Warn((logging.LoggerInput{
+			Message: fmt.Sprintf("KAFKA consumer << %s\n", string(message)),
+		}))
+	}
+	go pc.Receive("create-person", ConsumerFunc)
+
+	// Redis
 	redisClient, err := persistence.NewRedisClient(configData.Redis)
 	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "failed to connect to redis", Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100004})
 
@@ -49,16 +70,18 @@ func main() {
 	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Code: constants.ERROR_CODE_100005})
 	logging.Info((logging.LoggerInput{Data: map[string]any{"redisResponse": redisResponse}}))
 
-	client, err := elastic.NewElasticClient(configData.ElasticSearch)
-	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Message: "error creating elastic client", Code: constants.ERROR_CODE_100019})
-	err = elastic.TestElastic(client)
-	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err})
-	// messagequeue.TestMessageQueue(configData.Redis.Host)
+	// Elastic
+	// client, err := elastic.NewElasticClient(configData.ElasticSearch)
+	// errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Message: "error creating elastic client", Code: constants.ERROR_CODE_100019})
+	// err = elastic.TestElastic(client)
+	// errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err})
+	// queue.TestMessageQueue(configData.Redis.Host)
 	TestClientRepo(mongoClient, redisClient)
 	router := rest.SetupRouter(configData.App.AppEnv)
 	restrouter.NewUserRestHandler(router)
 	err = router.Run(fmt.Sprintf(":%s", configData.Rest.Port))
 	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Code: constants.ERROR_CODE_100018})
+
 }
 
 func TestClientRepo(db *persistence.MongoDatabase, redisClient *persistence.RedisClient) {
