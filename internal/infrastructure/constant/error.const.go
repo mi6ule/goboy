@@ -17,7 +17,7 @@ const (
 )
 
 var ErrorMessage = map[string]string{
-	"100001": "could not import env variables",
+	"100001": "failed to import env variables",
 	"100002": "failed to run migrations",
 	"100003": "failed to connect to mongoDb",
 	"100004": "failed to connect to redis",
@@ -25,15 +25,15 @@ var ErrorMessage = map[string]string{
 	"100006": "",
 	"100007": "",
 	"100008": "invalid connection string",
-	"100009": "Error while trying to connect to mongodb",
-	"100010": "Error while trying to connect to mongodb",
+	"100009": "failed to connect to mongodb",
+	"100010": "failed to connect to mongodb",
 	"100011": "",
 	"100012": "",
-	"100013": "Could not run asynq scheduler",
-	"100014": "Could not init mux server",
-	"100015": "Could not enqueue email",
-	"100016": "Could not enqueue image resize",
-	"100017": "could not connect to postgresql db",
+	"100013": "failed to run asynq scheduler",
+	"100014": "failed to init mux server",
+	"100015": "failed to enqueue email",
+	"100016": "failed to enqueue image resize",
+	"100017": "failed to connect to postgresql db",
 	"100018": "",
-	"100019": "error creating elastic client",
+	"100019": "failed to create elastic client",
 }
