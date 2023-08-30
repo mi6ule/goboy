@@ -12,7 +12,7 @@ import (
 
 func StartGRPCServer(db *persistence.MongoDatabase, redisClient *persistence.RedisClient) {
 	lis, err := net.Listen("tcp", "127.0.0.1:9879")
-	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Message: "failed to listen GRPC", ErrType: "fatal"})
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Message: "failed to listen GRPC", ErrType: "Fatal"})
 
 	grpcUserService := grpc_service.NewGrpcUserService(db, redisClient)
 

@@ -21,3 +21,7 @@ const (
 	ERROR_CODE_100018 = "100018"
 	ERROR_CODE_100019 = "100019"
 )
+
+var SystemError = map[string]string{
+	"100001": "could not import env variables",
+}

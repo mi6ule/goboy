@@ -21,7 +21,7 @@ import (
 func main() {
 	// Load environment variables
 	err := config.LoadEnv()
-	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "could not import env variables", Err: err, Code: constants.ERROR_CODE_100001})
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Code: "100001", ErrType: "Fatal"})
 	// Load configuration
 	configData := config.ProvideConfig()
 
