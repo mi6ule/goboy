@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
-	constants "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/constant"
 	migration "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/migration/handler"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/persistence"
 	cacheRepository "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/repository/cache"
@@ -27,32 +26,32 @@ func main() {
 
 	// Connect to PostgreSQL database
 	db, err := persistence.NewSqlDatabaseConn("postgres", configData.PostgresDb)
-	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "could not connect to postgresql db", Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100017})
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, ErrType: "Fatal", Code: "100017"})
 	defer db.Close()
 
 	// Run database migrations
 	err = migration.RunMigration(db)
-	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "failed to run migrations", Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100002})
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "failed to run migrations", Err: err, ErrType: "Fatal", Code: "100002"})
 	logging.Info((logging.LoggerInput{Message: "Migrations completed successfully"}))
 
 	// Connect to MongoDB
 	mongoClient, err := persistence.NoSQLConnection("mongodb", configData.MongoDb)
-	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "failed to connect to mongoDb", Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100003})
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, ErrType: "Fatal", Code: "100003"})
 
 	// Connect to Redis
 	redisClient, err := persistence.NewRedisClient(configData.Redis)
-	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "failed to connect to redis", Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100004})
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, ErrType: "Fatal", Code: "100004"})
 
 	// Redis repository initialization
 	redisRepo := cacheRepository.NewRedisRepository(redisClient)
 	redisRepo.Set("hello", "hello world!")
 	redisResponse, err := redisRepo.Get("hello")
-	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Code: constants.ERROR_CODE_100005})
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Code: "100005"})
 	logging.Info((logging.LoggerInput{Data: map[string]interface{}{"redisResponse": redisResponse}}))
 
 	// Create an Elasticsearch client
 	client, err := elastic.NewElasticClient(configData.ElasticSearch)
-	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Message: "error creating elastic client", Code: constants.ERROR_CODE_100019})
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Code: "100019"})
 	err = elastic.TestElastic(client)
 	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err})
 
@@ -67,5 +66,5 @@ func main() {
 
 	// Run REST server
 	err = router.Run(fmt.Sprintf(":%s", configData.Rest.Port))
-	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Code: constants.ERROR_CODE_100018})
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Code: "100018"})
 }
