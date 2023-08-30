@@ -1,4 +1,4 @@
-package messagequeue
+package queue
 
 import (
 	"encoding/json"
@@ -9,9 +9,9 @@ import (
 	constants "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/constant"
 	errorhandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/error-handler"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
-	queueconst "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/message-queue/const"
-	queuehandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/message-queue/handler"
-	queuemiddleware "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/message-queue/middleware"
+	queueconst "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/queue/const"
+	queuehandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/queue/handler"
+	queuemiddleware "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/queue/middleware"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/task"
 )
 
