@@ -1,0 +1,8 @@
+syntax = "proto3";
+package proto.user.v1;
+
+option go_package = "gitlab.avakatan.ir/boilerplates/go-boiler/gen/go/;userpb";
+
+message User {
+    string id = 1;
+}
