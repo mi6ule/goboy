@@ -34,7 +34,6 @@ func (pp *PersonProducer) Send(key string, message string) error {
 
 	err := pp.producer.Produce(msg, pp.deliveryChannel)
 	errorhandler.ErrorHandler(errorhandler.ErrorInput{
-		Message: "Error in person producer",
 		Err:     err,
 		ErrType: "Fatal",
 		Code:    constants.ERROR_CODE_100025,
@@ -49,9 +48,8 @@ func (pp *PersonProducer) Send(key string, message string) error {
 	if m.TopicPartition.Error != nil {
 		fmt.Printf("Delivery failed: %v\n", m.TopicPartition.Error)
 		errorhandler.ErrorHandler(errorhandler.ErrorInput{
-			Message: fmt.Sprintf("Delivery failed: %v", m.TopicPartition.Error),
-			Err:     err,
-			Code:    constants.ERROR_CODE_100026,
+			Err:  err,
+			Code: constants.ERROR_CODE_100026,
 		})
 	} else {
 		logging.Warn((logging.LoggerInput{

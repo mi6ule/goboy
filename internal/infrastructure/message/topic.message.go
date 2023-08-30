@@ -17,7 +17,7 @@ const (
 
 func CreateTopics() {
 	admin, err := kafka.NewAdminClient(&kafka.ConfigMap{"bootstrap.servers": bootstrapServers})
-	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "Failed to create admin client", Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100021})
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100021})
 
 	defer admin.Close()
 
@@ -34,7 +34,6 @@ func CreateTopics() {
 	ctx := context.Background()
 	results, err := admin.CreateTopics(ctx, topicSpecs)
 	errorhandler.ErrorHandler(errorhandler.ErrorInput{
-		Message: "Failed to create topics",
 		Err:     err,
 		ErrType: "Fatal",
 		Code:    constants.ERROR_CODE_100022,
