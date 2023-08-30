@@ -1,13 +1,9 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 
-	"net"
-
 	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
-	userpb "gitlab.avakatan.ir/boilerplates/go-boiler/gen/go/proto/user/v1"
 	constants "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/constant"
 	migration "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/migration/handler"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/persistence"
@@ -15,15 +11,12 @@ import (
 	dbtest "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/test"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/elastic"
 	errorhandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/error-handler"
+	grpc_main "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/grpc"
 
-	grpc_service "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/grpc/service"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/rest"
 	restrouter "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/rest/router"
-	"google.golang.org/grpc"
 )
-
-var DbConnection *sql.DB
 
 func main() {
 	// Load environment variables
@@ -66,7 +59,7 @@ func main() {
 	dbtest.TestClientRepo(mongoClient, redisClient)
 
 	// Run gRPC server
-	go startGRPCServer(mongoClient, redisClient)
+	go grpc_main.StartGRPCServer(mongoClient, redisClient)
 
 	// Set up REST endpoints
 	router := rest.SetupRouter(configData.App.AppEnv)
@@ -75,15 +68,4 @@ func main() {
 	// Run REST server
 	err = router.Run(fmt.Sprintf(":%s", configData.Rest.Port))
 	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Code: constants.ERROR_CODE_100018})
-}
-
-func startGRPCServer(db *persistence.MongoDatabase, redisClient *persistence.RedisClient) {
-	lis, err := net.Listen("tcp", "127.0.0.1:9879")
-	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Message: "failed to listen GRPC", ErrType: "fatal"})
-
-	grpcUserService := grpc_service.NewGrpcUserService(db, redisClient)
-
-	grpcServer := grpc.NewServer()
-	userpb.RegisterUserServiceServer(grpcServer, grpcUserService)
-	grpcServer.Serve(lis)
 }
