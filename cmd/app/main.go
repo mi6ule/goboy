@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"sync"
 
-	"log"
 	"net"
 
 	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
@@ -31,57 +30,40 @@ var DbConnection *sql.DB
 func main() {
 	// Load environment variables
 	err := config.LoadEnv()
-	if err != nil {
-		errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "could not import env variables", Err: err, Code: constants.ERROR_CODE_100001})
-	}
-
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "could not import env variables", Err: err, Code: constants.ERROR_CODE_100001})
 	// Load configuration
 	configData := config.ProvideConfig()
 
 	// Connect to PostgreSQL database
 	db, err := persistence.NewSqlDatabaseConn("postgres", configData.PostgresDb)
-	if err != nil {
-		errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "could not connect to postgresql db", Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100017})
-	}
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "could not connect to postgresql db", Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100017})
 	defer db.Close()
 
 	// Run database migrations
 	err = migration.RunMigration(db)
-	if err != nil {
-		errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "failed to run migrations", Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100002})
-	}
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "failed to run migrations", Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100002})
 	logging.Info((logging.LoggerInput{Message: "Migrations completed successfully"}))
 
 	// Connect to MongoDB
 	mongoClient, err := persistence.NoSQLConnection("mongodb", configData.MongoDb)
-	if err != nil {
-		errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "failed to connect to mongoDb", Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100003})
-	}
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "failed to connect to mongoDb", Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100003})
 
 	// Connect to Redis
 	redisClient, err := persistence.NewRedisClient(configData.Redis)
-	if err != nil {
-		errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "failed to connect to redis", Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100004})
-	}
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "failed to connect to redis", Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100004})
 
 	// Redis repository initialization
 	redisRepo := cacheRepository.NewRedisRepository(redisClient)
 	redisRepo.Set("hello", "hello world!")
 	redisResponse, err := redisRepo.Get("hello")
-	if err != nil {
-		errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Code: constants.ERROR_CODE_100005})
-	}
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Code: constants.ERROR_CODE_100005})
 	logging.Info((logging.LoggerInput{Data: map[string]interface{}{"redisResponse": redisResponse}}))
 
 	// Create an Elasticsearch client
 	client, err := elastic.NewElasticClient(configData.ElasticSearch)
-	if err != nil {
-		errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Message: "error creating elastic client", Code: constants.ERROR_CODE_100019})
-	}
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Message: "error creating elastic client", Code: constants.ERROR_CODE_100019})
 	err = elastic.TestElastic(client)
-	if err != nil {
-		errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err})
-	}
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err})
 
 	TestClientRepo(mongoClient, redisClient)
 
@@ -94,16 +76,12 @@ func main() {
 
 	// Run REST server
 	err = router.Run(fmt.Sprintf(":%s", configData.Rest.Port))
-	if err != nil {
-		errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Code: constants.ERROR_CODE_100018})
-	}
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Code: constants.ERROR_CODE_100018})
 }
 
 func startGRPCServer(db *persistence.MongoDatabase, redisClient *persistence.RedisClient) {
 	lis, err := net.Listen("tcp", "127.0.0.1:9879")
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Message: "failed to listen GRPC", ErrType: "fatal"})
 
 	grpcUserService := grpc_service.NewGrpcUserService(db, redisClient)
 
@@ -185,26 +163,15 @@ func TestUserRepo(db *persistence.Database) {
 	// 	PersonID: uuid.New(),
 	// }
 	// err := userRepo.Create(user)
-	// if err != nil {
 	// 	errorhandler.ErrorHandler(err, errorhandler.TErrorData{"errType":"Fatal"}).Err(err).Msg("")
-	// }
-
 	// // Retrieve a user by ID
 	// retrievedUser, err := userRepo.GetByID(user.ID)
-	// if err != nil {
 	// 	errorhandler.ErrorHandler(err, errorhandler.TErrorData{"errType":"Fatal"}).Err(err).Msg("")
-	// }
-
 	// // Update the user
 	// user.Username = "jdoe"
 	// err = userRepo.Update(user)
-	// if err != nil {
 	// 	errorhandler.ErrorHandler(err, errorhandler.TErrorData{"errType":"Fatal"}).Err(err).Msg("")
-	// }
-
 	// // Delete the user
 	// err = userRepo.Delete(user.ID)
-	// if err != nil {
 	// 	errorhandler.ErrorHandler(err, errorhandler.TErrorData{"errType":"Fatal"}).Err(err).Msg("")
-	// }
 }
