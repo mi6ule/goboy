@@ -1,8 +1,6 @@
 package message
 
 import (
-	"fmt"
-
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	constants "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/constant"
 	errorhandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/error-handler"
@@ -16,7 +14,6 @@ func MessageProducer() *kafka.Producer {
 	})
 	if err != nil {
 		errorhandler.ErrorHandler(errorhandler.ErrorInput{
-			Message: fmt.Sprintf("KAFKA: Error in creating producer: %s", err),
 			Err:     err,
 			ErrType: "Fatal", Code: constants.ERROR_CODE_100023,
 		})
@@ -32,7 +29,6 @@ func MessageConsumer() *kafka.Consumer {
 	})
 	if err != nil {
 		errorhandler.ErrorHandler(errorhandler.ErrorInput{
-			Message: fmt.Sprintf("KAFKA: Error in creating producer: %s", err),
 			Err:     err,
 			ErrType: "Fatal",
 			Code:    constants.ERROR_CODE_100024,
