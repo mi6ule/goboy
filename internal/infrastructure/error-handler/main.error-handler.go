@@ -18,8 +18,8 @@ type ErrorInput struct {
 func ErrorHandler(inp ErrorInput) {
 	if inp.Err != nil {
 		inp.Path = util.GetInvokedPath(inp.Path)
-		if inp.Code != "" && inp.Message == "" && constants.SystemError[inp.Code] != "" {
-			inp.Message = constants.SystemError[inp.Code]
+		if inp.Code != "" && inp.Message == "" && constants.ErrorMessage[inp.Code] != "" {
+			inp.Message = constants.ErrorMessage[inp.Code]
 		}
 		if inp.ErrType == "Fatal" {
 			FataError(inp)

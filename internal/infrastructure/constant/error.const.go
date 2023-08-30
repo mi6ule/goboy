@@ -16,7 +16,7 @@ const (
 	ERROR_CODE_100016 = "100016"
 )
 
-var SystemError = map[string]string{
+var ErrorMessage = map[string]string{
 	"100001": "could not import env variables",
 	"100002": "failed to run migrations",
 	"100003": "failed to connect to mongoDb",
