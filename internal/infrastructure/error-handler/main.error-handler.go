@@ -1,6 +1,7 @@
 package errorhandler
 
 import (
+	constants "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/constant"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/util"
 )
@@ -17,6 +18,9 @@ type ErrorInput struct {
 func ErrorHandler(inp ErrorInput) {
 	if inp.Err != nil {
 		inp.Path = util.GetInvokedPath(inp.Path)
+		if inp.Code != "" && inp.Message == "" && constants.ErrorMessage[inp.Code] != "" {
+			inp.Message = constants.ErrorMessage[inp.Code]
+		}
 		if inp.ErrType == "Fatal" {
 			FataError(inp)
 		} else {

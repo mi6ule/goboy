@@ -2,10 +2,7 @@ package constants
 
 const (
 	ERROR_CODE_100001 = "100001"
-	ERROR_CODE_100002 = "100002"
-	ERROR_CODE_100003 = "100003"
 	ERROR_CODE_100004 = "100004"
-	ERROR_CODE_100005 = "100005"
 	ERROR_CODE_100006 = "100006"
 	ERROR_CODE_100007 = "100007"
 	ERROR_CODE_100008 = "100008"
@@ -33,3 +30,35 @@ const (
 	ERROR_CODE_100029 = "100029"
 	ERROR_CODE_100030 = "100030"
 )
+
+var ErrorMessage = map[string]string{
+	"100001": "failed to import env variables",
+	"100002": "failed to run migrations",
+	"100003": "failed to connect to mongoDb",
+	"100004": "failed to connect to redis",
+	"100005": "",
+	"100006": "",
+	"100007": "",
+	"100008": "invalid connection string",
+	"100009": "failed to connect to mongodb",
+	"100010": "failed to connect to mongodb",
+	"100011": "",
+	"100012": "",
+	"100013": "failed to run asynq scheduler",
+	"100014": "failed to init mux server",
+	"100015": "failed to enqueue email",
+	"100016": "failed to enqueue image resize",
+	"100017": "failed to connect to postgresql db",
+	"100018": "failed to listen gin server",
+	"100019": "failed to create elastic client",
+	"100021": "failed to create admin client",
+	"100022": "failed to create topics",
+	"100023": "KAFKA: Error in creating producer",
+	"100024": "KAFKA: Error in creating producer",
+	"100025": "Error in person producer",
+	"100026": "delivery failed",
+	"100027": "KAFKA: Error in subscribing to the topic",
+	"100028": "KAFKA: Error in fetch messages from the topic",
+	"100029": "",
+	"100030": "",
+}

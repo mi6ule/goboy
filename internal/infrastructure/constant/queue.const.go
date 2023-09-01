@@ -1,4 +1,4 @@
-package queueconst
+package constants
 
 const (
 	DefaultQueue     = "default"

@@ -26,21 +26,19 @@ func (db MongoDatabaseConnection) Connect() *MongoDatabase {
 	connectionString := db.connectionString
 	lastSlashIndex := strings.LastIndex(connectionString, "/")
 	if lastSlashIndex == -1 || lastSlashIndex == len(connectionString)-1 {
-		errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "invalid connection string", Err: fmt.Errorf("invalid connection string"), ErrType: "Fatal", Code: constants.ERROR_CODE_100008})
+		errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: fmt.Errorf("invalid connection string"), ErrType: "Fatal", Code: constants.ERROR_CODE_100008})
 	}
 
 	dbName := connectionString[lastSlashIndex+1:]
 
 	client, err := mongo.NewClient(options.Client().ApplyURI(connectionString))
-	if err != nil {
-		errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "Error while trying to connect to mongodb", Err: fmt.Errorf("invalid connection string"), ErrType: "Fatal", Code: constants.ERROR_CODE_100009})
-	}
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: fmt.Errorf("invalid connection string"), ErrType: "Fatal", Code: constants.ERROR_CODE_100009})
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	err = client.Connect(ctx)
-	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "Error while trying to connect to mongodb", Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100010})
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100010})
 
 	database := client.Database(dbName)
 

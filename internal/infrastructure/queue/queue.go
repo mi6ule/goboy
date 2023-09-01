@@ -9,7 +9,6 @@ import (
 	constants "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/constant"
 	errorhandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/error-handler"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
-	queueconst "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/queue/const"
 	queuehandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/queue/handler"
 	queuemiddleware "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/queue/middleware"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/task"
@@ -54,7 +53,7 @@ func NewAsynqMQ(redisAddr string) *AsynqMQ {
 	}
 	go func() {
 		err := mq.Scheduler.Run()
-		errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "Could not run asynq scheduler", Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100013})
+		errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100013})
 	}()
 	return mq
 }
@@ -65,10 +64,10 @@ func ProcessQueues(redisAddr string) {
 		asynq.Config{
 			Concurrency: 10,
 			Queues: map[string]int{
-				queueconst.DefaultQueue:     1,
-				queueconst.FirstEmailQueue:  2,
-				queueconst.SecondEmailQueue: 2,
-				queueconst.ImageResizeQueue: 2,
+				constants.DefaultQueue:     1,
+				constants.FirstEmailQueue:  2,
+				constants.SecondEmailQueue: 2,
+				constants.ImageResizeQueue: 2,
 			},
 			Logger: &logging.AsynqZerologLogger{
 				Logger: logging.AppLogger,
@@ -83,20 +82,20 @@ func ProcessQueues(redisAddr string) {
 
 	err := srv.Run(mux)
 
-	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "Could not init mux server", Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100014})
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100014})
 }
 
 func TestMessageQueue(redisAddr string) *AsynqMQ {
 	mq := NewAsynqMQ(redisAddr)
 	t, err := task.NewEmailDeliveryTask(42, "some-template-id")
-	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "Could not enqueue email", Err: err, Code: constants.ERROR_CODE_100015})
-	_, err = mq.Enqueue(t, queueconst.FirstEmailQueue, asynq.Retention(2*time.Minute))
-	errorhandler.ErrorHandler(errorhandler.ErrorInput{Message: "Could not enqueue image resize", Err: err, Code: constants.ERROR_CODE_100016})
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Code: constants.ERROR_CODE_100015})
+	_, err = mq.Enqueue(t, constants.FirstEmailQueue, asynq.Retention(2*time.Minute))
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Code: constants.ERROR_CODE_100016})
 	emailPayload, _ := json.Marshal(task.EmailDeliveryPayload{UserID: 1, TemplateID: "interval-temp"})
-	mq.Scheduler.Register("@every 2s", asynq.NewTask(task.EmailDeliveryTask, emailPayload, asynq.Queue(queueconst.FirstEmailQueue)))
-	mq.PushToOtherQueue(queueconst.SecondEmailQueue, queueconst.FirstEmailQueue)
+	mq.Scheduler.Register("@every 2s", asynq.NewTask(task.EmailDeliveryTask, emailPayload, asynq.Queue(constants.FirstEmailQueue)))
+	mq.PushToOtherQueue(constants.SecondEmailQueue, constants.FirstEmailQueue)
 
-	firstEmailQueueInfo, _ := mq.Inspector.GetQueueInfo(queueconst.FirstEmailQueue)
+	firstEmailQueueInfo, _ := mq.Inspector.GetQueueInfo(constants.FirstEmailQueue)
 	logging.Info(logging.LoggerInput{Data: map[string]any{"firstEmailQueueInfo": firstEmailQueueInfo}})
 
 	ProcessQueues(redisAddr)

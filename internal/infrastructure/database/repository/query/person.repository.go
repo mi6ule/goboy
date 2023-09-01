@@ -9,6 +9,7 @@ import (
 	query_model "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/model/query"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/persistence"
 	cacheRepository "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/repository/cache"
+	errorhandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/error-handler"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -54,7 +55,7 @@ func (r *MongoDBClientRepository) GetByID(id int) (*query_model.Client, error) {
 		var client query_model.Client
 		err := json.Unmarshal([]byte(isInCache), &client)
 		if err != nil {
-			logging.Error(logging.LoggerInput{Err: err})
+			errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err})
 			return nil, err
 		}
 

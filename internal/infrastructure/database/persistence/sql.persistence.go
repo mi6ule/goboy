@@ -101,9 +101,7 @@ func ExamplePostgres() {
 	// Execute a query
 	query := "SELECT * FROM customer"
 	result, err := db.ExecuteQuery(query)
-	if err != nil {
-		errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100012})
-	}
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, ErrType: "Fatal", Code: constants.ERROR_CODE_100012})
 
 	// Process the query result
 	for _, row := range result {

@@ -24,7 +24,6 @@ func NewPersonConsumer(c *kafka.Consumer, topic string) *PersonConsumer {
 func (pc *PersonConsumer) Receive(key string, ConsumerFunc func(string)) {
 	err := pc.consumer.Subscribe(pc.topic, nil)
 	errorhandler.ErrorHandler(errorhandler.ErrorInput{
-		Message: "KAFKA: Error in subscribing to the topic",
 		Err:     err,
 		ErrType: "Fatal",
 		Code:    constants.ERROR_CODE_100027,
@@ -41,8 +40,7 @@ func (pc *PersonConsumer) Receive(key string, ConsumerFunc func(string)) {
 			}
 		case kafka.Error:
 			errorhandler.ErrorHandler(errorhandler.ErrorInput{
-				Message: "KAFKA: Error in fetch messages from the topic",
-				Code:    constants.ERROR_CODE_100028,
+				Code: constants.ERROR_CODE_100028,
 			})
 			run = false
 		default:
