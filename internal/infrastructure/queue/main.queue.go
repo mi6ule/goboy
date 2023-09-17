@@ -52,6 +52,16 @@ func (mq *AsynqMQ) PushToOtherQueue(sourceQueue string, destinationQueue string)
 	return nil
 }
 
+func (mq *AsynqMQ) CheckHealthiness(queue string) bool {
+	info, err := mq.Inspector.GetQueueInfo(queue)
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Code: constants.ERROR_CODE_100036, Data: map[string]any{"queue": queue}})
+	dailyFaildProcessesPercentage := float32(info.Failed) / float32(info.Processed)
+	if err != nil || dailyFaildProcessesPercentage >= 0.1 {
+		return false
+	}
+	return true
+}
+
 func NewAsynqMQ(redisAddr string, runScheduler bool) *AsynqMQ {
 	client := asynq.NewClient(asynq.RedisClientOpt{Addr: redisAddr})
 	scheduler := asynq.NewScheduler(asynq.RedisClientOpt{Addr: redisAddr}, &asynq.SchedulerOpts{})

@@ -36,6 +36,7 @@ const (
 	ERROR_CODE_100033 = "100033"
 	ERROR_CODE_100034 = "100034"
 	ERROR_CODE_100035 = "100035"
+	ERROR_CODE_100036 = "100036"
 )
 
 var ErrorMessage = map[string]string{
@@ -74,4 +75,5 @@ var ErrorMessage = map[string]string{
 	ERROR_CODE_100033: "failed to parse task payload into json",
 	ERROR_CODE_100034: "failed to get pending tasks from source queue",
 	ERROR_CODE_100035: "failed to push task to destination queue",
+	ERROR_CODE_100036: "failed to get queue info",
 }
