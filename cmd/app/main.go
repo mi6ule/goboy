@@ -93,4 +93,7 @@ func main() {
 	// Run REST server
 	err = router.Run(fmt.Sprintf(":%s", configData.Rest.Port))
 	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Code: "100018"})
+	if err == nil {
+		logging.Info(logging.LoggerInput{Message: fmt.Sprintf("app is listenning on port: %s", configData.Rest.Port)})
+	}
 }

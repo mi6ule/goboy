@@ -25,6 +25,6 @@ func ExampleMessageQueue(redisAddr string) *queue.AsynqMQ {
 	firstEmailQueueInfo, _ := mq.Inspector.GetQueueInfo(constants.FirstEmailQueue)
 	logging.Info(logging.LoggerInput{Data: map[string]any{"firstEmailQueueInfo": firstEmailQueueInfo}})
 
-	queueprocess.ProcessQueues(redisAddr)
+	go queueprocess.ProcessQueues(redisAddr)
 	return mq
 }
