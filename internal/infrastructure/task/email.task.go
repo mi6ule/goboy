@@ -1,9 +1,7 @@
 package task
 
 import (
-	"encoding/json"
-
-	"github.com/hibiken/asynq"
+	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/queue"
 )
 
 type EmailDeliveryPayload struct {
@@ -11,10 +9,8 @@ type EmailDeliveryPayload struct {
 	TemplateID string
 }
 
-func NewEmailDeliveryTask(userID int, tmplID string) (*asynq.Task, error) {
-	payload, err := json.Marshal(EmailDeliveryPayload{UserID: userID, TemplateID: tmplID})
-	if err != nil {
-		return nil, err
-	}
-	return asynq.NewTask(EmailDeliveryTask, payload), nil
+func NewEmailDeliveryTask(userID int, tmplID string) (*queue.AsynqTask, error) {
+	// do something here
+	// return task
+	return &queue.AsynqTask{TypeName: EmailDeliveryTask, Payload: EmailDeliveryPayload{UserID: userID, TemplateID: tmplID}}, nil
 }
