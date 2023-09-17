@@ -66,7 +66,7 @@ var ErrorMessage = map[string]string{
 	"100028":          "KAFKA: Error in fetch messages from the topic",
 	"100029":          "",
 	"100030":          "",
-	ERROR_CODE_100031: "failed to equeue task",
+	ERROR_CODE_100031: "failed to enqueue task",
 	ERROR_CODE_100032: "failed to delete tasks from the source queue",
 	ERROR_CODE_100033: "failed to parse task payload into json",
 	ERROR_CODE_100034: "failed to get pending tasks from source queue",
