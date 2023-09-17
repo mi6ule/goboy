@@ -32,11 +32,11 @@ func (e *Elastic) CreateIndex(name string) error {
 		if createIndexResponse.IsError() {
 			return fmt.Errorf("failed to create index: %s", createIndexResponse.String())
 		}
-		logging.Info(logging.LoggerInput{Message: "Index created: %s", FormatVal: []any{name}})
+		logging.Info(logging.LoggerInput{Message: fmt.Sprintf("Index created: %s", name)})
 	} else if exists.IsError() {
 		return fmt.Errorf("failed to check index existence: %s", exists.String())
 	} else {
-		logging.Info(logging.LoggerInput{Message: "Index already exists: %s", FormatVal: []any{name}})
+		logging.Info(logging.LoggerInput{Message: fmt.Sprintf("Index already exists: %s", name)})
 	}
 
 	return nil
@@ -54,7 +54,7 @@ func (e *Elastic) UpdateIndexMapping(indexName string, mapping string) error {
 	if response.IsError() {
 		return fmt.Errorf("failed to update index mapping: %s", response.String())
 	}
-	logging.Info(logging.LoggerInput{Message: "Index mapping updated successfully: %s", FormatVal: []any{indexName}})
+	logging.Info(logging.LoggerInput{Message: fmt.Sprintf("Index mapping updated successfully: %s", indexName)})
 	return nil
 }
 
@@ -70,7 +70,7 @@ func (e *Elastic) UpdateIndexSettings(indexName string, settings string) error {
 	if response.IsError() {
 		return fmt.Errorf("failed to update index settings: %s", response.String())
 	}
-	logging.Info(logging.LoggerInput{Message: "Index settings updated successfully: %s", FormatVal: []any{indexName}})
+	logging.Info(logging.LoggerInput{Message: fmt.Sprintf("Index settings updated successfully: %s", indexName)})
 	return nil
 }
 

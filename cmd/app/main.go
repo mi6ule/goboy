@@ -12,6 +12,7 @@ import (
 	dbtest "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/test"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/message/consumer"
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/message/producer"
+	queueexample "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/queue/example"
 
 	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/elastic"
 	errorhandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/error-handler"
@@ -43,8 +44,8 @@ func main() {
 	// Kafka
 	message.CreateTopics()
 	pp := producer.NewPersonProducer(message.MessageProducer(), "person-topic")
-	err = pp.Send("create-person", fmt.Sprintf(`{"firstName":"Morgan", "lastName":"Freeman", "timestamp": "%v"}`, time.Now().Format("2006-01-02 15:04:05")))
-	err = pp.Send("create-person", fmt.Sprintf(`{"firstName":"Leonardo", "lastName":"Dicaprio", "timestamp": "%v"}`, time.Now().Format("2006-01-02 15:04:05")))
+	_ = pp.Send("create-person", fmt.Sprintf(`{"firstName":"Morgan", "lastName":"Freeman", "timestamp": "%v"}`, time.Now().Format("2006-01-02 15:04:05")))
+	_ = pp.Send("create-person", fmt.Sprintf(`{"firstName":"Leonardo", "lastName":"Dicaprio", "timestamp": "%v"}`, time.Now().Format("2006-01-02 15:04:05")))
 	err = pp.Send("create-person", fmt.Sprintf(`{"firstName":"Matt", "lastName":"Damon", "timestamp": "%v"}`, time.Now().Format("2006-01-02 15:04:05")))
 	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Code: constants.ERROR_CODE_100020})
 	pc := consumer.NewPersonConsumer(message.MessageConsumer(), "person-topic")
@@ -63,6 +64,9 @@ func main() {
 	// Connect to Redis
 	redisClient, err := persistence.NewRedisClient(configData.Redis)
 	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, ErrType: "Fatal", Code: "100004"})
+
+	// Queue example
+	queueexample.ExampleMessageQueue(redisClient.Client.Options().Addr)
 
 	// Redis repository initialization
 	redisRepo := cacheRepository.NewRedisRepository(redisClient)
