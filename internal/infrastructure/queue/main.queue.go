@@ -2,7 +2,6 @@ package queue
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/hibiken/asynq"
 	constants "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/constant"
@@ -23,22 +22,25 @@ type AsynqTask struct {
 
 func (mq *AsynqMQ) Enqueue(t *AsynqTask, queue string, opts ...asynq.Option) (*asynq.TaskInfo, error) {
 	payload, err := json.Marshal(t.Payload)
-	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Code: constants.ERROR_CODE_100031})
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Code: constants.ERROR_CODE_100033, Data: map[string]any{"payload": t.Payload}})
 	task := asynq.NewTask(t.TypeName, payload)
 	opts = append(opts, asynq.Queue(queue))
 	info, err := mq.client.Enqueue(task, opts...)
+	errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Code: constants.ERROR_CODE_100031, Data: map[string]any{"payload": t.Payload}})
 	return info, err
 }
 
 func (mq *AsynqMQ) PushToOtherQueue(sourceQueue string, destinationQueue string) error {
 	tasks, err := mq.Inspector.ListPendingTasks(sourceQueue, asynq.PageSize(-1))
 	if err != nil {
-		return fmt.Errorf("failed to fetch tasks from source queue: %v", err)
+		errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Code: constants.ERROR_CODE_100034, Data: map[string]any{"sourceQueue": sourceQueue, "destinationQueue": destinationQueue}})
+		return err
 	}
 	for _, task := range tasks {
 		_, err := mq.client.Enqueue(asynq.NewTask(task.Type, task.Payload), asynq.Queue(destinationQueue))
 		if err != nil {
-			return fmt.Errorf("failed to push task to destination queue: %v", err)
+			errorhandler.ErrorHandler(errorhandler.ErrorInput{Err: err, Code: constants.ERROR_CODE_100035, Data: map[string]any{"sourceQueue": sourceQueue, "destinationQueue": destinationQueue}})
+			return err
 		} else {
 			err = mq.Inspector.DeleteTask(sourceQueue, task.ID)
 			if err != nil {

@@ -31,6 +31,9 @@ const (
 	ERROR_CODE_100030 = "100030"
 	ERROR_CODE_100031 = "100031"
 	ERROR_CODE_100032 = "100032"
+	ERROR_CODE_100033 = "100033"
+	ERROR_CODE_100034 = "100034"
+	ERROR_CODE_100035 = "100035"
 )
 
 var ErrorMessage = map[string]string{
@@ -63,6 +66,9 @@ var ErrorMessage = map[string]string{
 	"100028":          "KAFKA: Error in fetch messages from the topic",
 	"100029":          "",
 	"100030":          "",
-	ERROR_CODE_100031: "failed to create queue task",
+	ERROR_CODE_100031: "failed to equeue task",
 	ERROR_CODE_100032: "failed to delete tasks from the source queue",
+	ERROR_CODE_100033: "failed to parse task payload into json",
+	ERROR_CODE_100034: "failed to get pending tasks from source queue",
+	ERROR_CODE_100035: "failed to push task to destination queue",
 }
