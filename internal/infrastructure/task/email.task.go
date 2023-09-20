@@ -1,7 +1,7 @@
 package task
 
 import (
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/queue"
+	"github.com/mi6ule/goboy/internal/infrastructure/queue"
 )
 
 type EmailDeliveryPayload struct {

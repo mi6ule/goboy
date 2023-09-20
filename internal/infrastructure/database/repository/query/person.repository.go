@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"strconv"
 
-	query_model "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/model/query"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/persistence"
-	cacheRepository "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/repository/cache"
-	errorhandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/error-handler"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
+	query_model "github.com/mi6ule/goboy/internal/infrastructure/database/model/query"
+	"github.com/mi6ule/goboy/internal/infrastructure/database/persistence"
+	cacheRepository "github.com/mi6ule/goboy/internal/infrastructure/database/repository/cache"
+	errorhandler "github.com/mi6ule/goboy/internal/infrastructure/error-handler"
+	"github.com/mi6ule/goboy/internal/infrastructure/logging"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )

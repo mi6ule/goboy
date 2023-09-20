@@ -2,7 +2,7 @@ package elastic
 
 import (
 	elasticsearch "github.com/elastic/go-elasticsearch/v8"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
+	"github.com/mi6ule/goboy/config"
 )
 
 type Elastic struct {

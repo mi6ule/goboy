@@ -2,7 +2,7 @@ package restrouter
 
 import (
 	"github.com/gin-gonic/gin"
-	restcontroller "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/rest/controller"
+	restcontroller "github.com/mi6ule/goboy/internal/infrastructure/rest/controller"
 )
 
 func NewUserRestHandler(router *gin.Engine) {

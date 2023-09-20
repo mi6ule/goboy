@@ -3,10 +3,10 @@ package grpc_main
 import (
 	"net"
 
-	userpb "gitlab.avakatan.ir/boilerplates/go-boiler/gen/go/proto/user/v1"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/persistence"
-	errorhandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/error-handler"
-	grpc_service "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/grpc/service"
+	userpb "github.com/mi6ule/goboy/gen/go/proto/user/v1"
+	"github.com/mi6ule/goboy/internal/infrastructure/database/persistence"
+	errorhandler "github.com/mi6ule/goboy/internal/infrastructure/error-handler"
+	grpc_service "github.com/mi6ule/goboy/internal/infrastructure/grpc/service"
 	"google.golang.org/grpc"
 )
 

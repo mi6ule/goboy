@@ -4,11 +4,11 @@ import (
 	"database/sql"
 	"fmt"
 
-	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
-	constants "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/constant"
-	errorhandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/error-handler"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/util"
+	"github.com/mi6ule/goboy/config"
+	constants "github.com/mi6ule/goboy/internal/infrastructure/constant"
+	errorhandler "github.com/mi6ule/goboy/internal/infrastructure/error-handler"
+	"github.com/mi6ule/goboy/internal/infrastructure/logging"
+	"github.com/mi6ule/goboy/internal/util"
 )
 
 type Database struct {

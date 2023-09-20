@@ -5,14 +5,14 @@ import (
 	"sync"
 
 	"github.com/google/uuid"
-	constants "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/constant"
-	command_model "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/model/command"
-	query_model "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/model/query"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/persistence"
-	repository "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/repository/command"
-	readRepository "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/repository/query"
-	errorhandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/error-handler"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
+	constants "github.com/mi6ule/goboy/internal/infrastructure/constant"
+	command_model "github.com/mi6ule/goboy/internal/infrastructure/database/model/command"
+	query_model "github.com/mi6ule/goboy/internal/infrastructure/database/model/query"
+	"github.com/mi6ule/goboy/internal/infrastructure/database/persistence"
+	repository "github.com/mi6ule/goboy/internal/infrastructure/database/repository/command"
+	readRepository "github.com/mi6ule/goboy/internal/infrastructure/database/repository/query"
+	errorhandler "github.com/mi6ule/goboy/internal/infrastructure/error-handler"
+	"github.com/mi6ule/goboy/internal/infrastructure/logging"
 )
 
 func TestClientRepo(db *persistence.MongoDatabase, redisClient *persistence.RedisClient) {

@@ -4,7 +4,7 @@ import (
 	"strconv"
 
 	"github.com/go-redis/redis"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
+	"github.com/mi6ule/goboy/config"
 )
 
 type RedisClient struct {

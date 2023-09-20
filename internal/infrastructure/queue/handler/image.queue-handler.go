@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	"github.com/hibiken/asynq"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/task"
+	"github.com/mi6ule/goboy/internal/infrastructure/logging"
+	"github.com/mi6ule/goboy/internal/infrastructure/task"
 )
 
 type ImageProcessor struct{}

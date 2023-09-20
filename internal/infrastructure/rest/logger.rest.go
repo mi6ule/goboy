@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
+	"github.com/mi6ule/goboy/internal/infrastructure/logging"
 )
 
 func RestLogMiddleware() gin.HandlerFunc {

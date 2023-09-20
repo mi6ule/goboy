@@ -2,8 +2,8 @@ package message
 
 import (
 	"github.com/confluentinc/confluent-kafka-go/kafka"
-	constants "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/constant"
-	errorhandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/error-handler"
+	constants "github.com/mi6ule/goboy/internal/infrastructure/constant"
+	errorhandler "github.com/mi6ule/goboy/internal/infrastructure/error-handler"
 )
 
 func MessageProducer() *kafka.Producer {

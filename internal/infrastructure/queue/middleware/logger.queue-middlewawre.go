@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/hibiken/asynq"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
+	"github.com/mi6ule/goboy/internal/infrastructure/logging"
 )
 
 func LoggingMiddleware(h asynq.Handler) asynq.Handler {

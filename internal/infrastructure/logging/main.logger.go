@@ -4,11 +4,11 @@ import (
 	"os"
 	"time"
 
+	"github.com/mi6ule/goboy/config"
+	constants "github.com/mi6ule/goboy/internal/infrastructure/constant"
+	"github.com/mi6ule/goboy/internal/util"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
-	constants "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/constant"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/util"
 )
 
 var AppLogger = LoggerGenerator(nil)

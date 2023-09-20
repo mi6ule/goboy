@@ -3,7 +3,7 @@ package util
 import (
 	"fmt"
 
-	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
+	"github.com/mi6ule/goboy/config"
 )
 
 func CreateConnectionString(driver string, connectionConfig config.DatabaseConfig) (string, error) {

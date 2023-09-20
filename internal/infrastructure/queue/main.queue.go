@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 
 	"github.com/hibiken/asynq"
-	constants "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/constant"
-	errorhandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/error-handler"
+	constants "github.com/mi6ule/goboy/internal/infrastructure/constant"
+	errorhandler "github.com/mi6ule/goboy/internal/infrastructure/error-handler"
 )
 
 type AsynqMQ struct {

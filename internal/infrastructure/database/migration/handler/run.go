@@ -1,7 +1,7 @@
 package migration
 
 import (
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/persistence"
+	"github.com/mi6ule/goboy/internal/infrastructure/database/persistence"
 )
 
 func RunMigration(db *persistence.Database) error {

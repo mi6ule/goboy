@@ -6,8 +6,8 @@ import (
 
 	"github.com/google/uuid"
 
-	command_model "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/model/command"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/persistence"
+	command_model "github.com/mi6ule/goboy/internal/infrastructure/database/model/command"
+	"github.com/mi6ule/goboy/internal/infrastructure/database/persistence"
 )
 
 type UserRepository interface {

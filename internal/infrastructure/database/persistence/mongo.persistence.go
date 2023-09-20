@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	constants "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/constant"
-	errorhandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/error-handler"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
+	constants "github.com/mi6ule/goboy/internal/infrastructure/constant"
+	errorhandler "github.com/mi6ule/goboy/internal/infrastructure/error-handler"
+	"github.com/mi6ule/goboy/internal/infrastructure/logging"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )

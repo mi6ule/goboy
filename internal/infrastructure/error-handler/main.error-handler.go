@@ -1,9 +1,9 @@
 package errorhandler
 
 import (
-	constants "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/constant"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/util"
+	constants "github.com/mi6ule/goboy/internal/infrastructure/constant"
+	"github.com/mi6ule/goboy/internal/infrastructure/logging"
+	"github.com/mi6ule/goboy/internal/util"
 )
 
 type ErrorInput struct {

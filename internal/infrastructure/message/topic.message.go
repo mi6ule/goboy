@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
-	constants "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/constant"
-	errorhandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/error-handler"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
+	constants "github.com/mi6ule/goboy/internal/infrastructure/constant"
+	errorhandler "github.com/mi6ule/goboy/internal/infrastructure/error-handler"
+	"github.com/mi6ule/goboy/internal/infrastructure/logging"
 )
 
 const (

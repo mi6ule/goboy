@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/persistence"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
+	"github.com/mi6ule/goboy/internal/infrastructure/database/persistence"
+	"github.com/mi6ule/goboy/internal/infrastructure/logging"
 )
 
 func RunSqlMigrations(db *persistence.Database) error {

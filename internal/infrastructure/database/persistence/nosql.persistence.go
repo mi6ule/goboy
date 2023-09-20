@@ -3,8 +3,8 @@ package persistence
 import (
 	"fmt"
 
-	"gitlab.avakatan.ir/boilerplates/go-boiler/config"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/util"
+	"github.com/mi6ule/goboy/config"
+	"github.com/mi6ule/goboy/internal/util"
 )
 
 func NoSQLConnection[T *MongoDatabase](driver string, connectionConfig config.DatabaseConfig) (T, error) {

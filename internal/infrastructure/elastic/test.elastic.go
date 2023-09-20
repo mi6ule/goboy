@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 
 	"github.com/google/uuid"
-	constants "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/constant"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
+	constants "github.com/mi6ule/goboy/internal/infrastructure/constant"
+	"github.com/mi6ule/goboy/internal/infrastructure/logging"
 )
 
 func TestElastic(elastic *Elastic) error {

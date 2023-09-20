@@ -5,12 +5,12 @@ import (
 	"time"
 
 	"github.com/hibiken/asynq"
-	constants "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/constant"
-	errorhandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/error-handler"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/queue"
-	queueprocess "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/queue/process"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/task"
+	constants "github.com/mi6ule/goboy/internal/infrastructure/constant"
+	errorhandler "github.com/mi6ule/goboy/internal/infrastructure/error-handler"
+	"github.com/mi6ule/goboy/internal/infrastructure/logging"
+	"github.com/mi6ule/goboy/internal/infrastructure/queue"
+	queueprocess "github.com/mi6ule/goboy/internal/infrastructure/queue/process"
+	"github.com/mi6ule/goboy/internal/infrastructure/task"
 )
 
 func ExampleMessageQueue(redisAddr string) *queue.AsynqMQ {

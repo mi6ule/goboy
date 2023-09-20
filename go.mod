@@ -1,4 +1,4 @@
-module gitlab.avakatan.ir/boilerplates/go-boiler
+module github.com/mi6ule/goboy
 
 go 1.20
 

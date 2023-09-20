@@ -2,12 +2,12 @@ package queueprocess
 
 import (
 	"github.com/hibiken/asynq"
-	constants "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/constant"
-	errorhandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/error-handler"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
-	queuehandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/queue/handler"
-	queuemiddleware "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/queue/middleware"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/task"
+	constants "github.com/mi6ule/goboy/internal/infrastructure/constant"
+	errorhandler "github.com/mi6ule/goboy/internal/infrastructure/error-handler"
+	"github.com/mi6ule/goboy/internal/infrastructure/logging"
+	queuehandler "github.com/mi6ule/goboy/internal/infrastructure/queue/handler"
+	queuemiddleware "github.com/mi6ule/goboy/internal/infrastructure/queue/middleware"
+	"github.com/mi6ule/goboy/internal/infrastructure/task"
 )
 
 func ProcessQueues(redisAddr string) {

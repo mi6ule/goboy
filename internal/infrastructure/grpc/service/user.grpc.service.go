@@ -6,13 +6,13 @@ import (
 	"strconv"
 	"sync"
 
-	userpb "gitlab.avakatan.ir/boilerplates/go-boiler/gen/go/proto/user/v1"
-	constants "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/constant"
-	query_model "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/model/query"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/persistence"
-	readRepository "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/database/repository/query"
-	errorhandler "gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/error-handler"
-	"gitlab.avakatan.ir/boilerplates/go-boiler/internal/infrastructure/logging"
+	userpb "github.com/mi6ule/goboy/gen/go/proto/user/v1"
+	constants "github.com/mi6ule/goboy/internal/infrastructure/constant"
+	query_model "github.com/mi6ule/goboy/internal/infrastructure/database/model/query"
+	"github.com/mi6ule/goboy/internal/infrastructure/database/persistence"
+	readRepository "github.com/mi6ule/goboy/internal/infrastructure/database/repository/query"
+	errorhandler "github.com/mi6ule/goboy/internal/infrastructure/error-handler"
+	"github.com/mi6ule/goboy/internal/infrastructure/logging"
 )
 
 type GrpcUserService struct {
